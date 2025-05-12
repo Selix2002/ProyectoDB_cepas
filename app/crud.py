@@ -64,7 +64,20 @@ from app.models import (
 class CepaController(Controller):
     path = "/cepas"
     tags = ["Cepa"]
-    return_dto=CepaReadDTO
+    dto = CepaReadDTO
     dependencies = {
         "cepa_repo": Provide(provide_cepa_repo),
     }
+    
+    @get()
+    async def get_all(self, cepa_repo: CepaRepository) -> Sequence[Cepa]:
+        """
+        Devuelve todas las instancias de Cepa.
+        Gracias a `dto = CepaReadDTO`, Litestar convierte cada entidad
+        a su DTO correspondiente y luego serializa a JSON.
+        """
+        return cepa_repo.list()
+
+
+
+

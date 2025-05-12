@@ -25,7 +25,8 @@ class ProyectoCreateDTO(SQLAlchemyDTO[Proyecto]):
 
 # DTOs para leer
 class CepaReadDTO(SQLAlchemyDTO[Cepa]):
-    pass
+    config = SQLAlchemyDTOConfig(exclude=["almacenamiento", "medio_cultivo", "morfologia", "actividad_enzimatica", "crecimiento_temperatura", "resistencia_antibiotica", "caracterizacion_genetica", "proyecto"])
+
 class AlmacenamientoReadDTO(SQLAlchemyDTO[Almacenamiento]):
     pass
 class MedioCultivoReadDTO(SQLAlchemyDTO[MedioCultivo]):
