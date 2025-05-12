@@ -1,0 +1,22 @@
+envio a PUQ,-80°,Medio Cultivo,Cepa,Cód-lab,Pigmentación,Origen,Gram,morfologia,Morfologia,Lecitinasa,Ureasa,Lipasa,Amilasa,Proteasa,Catalasa,Celulasa,Fosfatasa,AIA,5 ºC,37 °C,25 °C,AMP,CTX,CXM,CAZ,AK,C,TE,AM E.coli,AM S.aureus,16S,Metabolomica,Nicolás,Proyecto
+15-may,C-5,LB/3,SBLA 5,A12,Naranjo,Laguna Amarga,+,Bacilos,,+,+,+,+,+,+,++,+,+,1,1,1,R,R,R,R,R,R,R,-,-,Jeotgalibacillus sp.,si,,Innova Sur sur
+15-may,D-1,LB/3,SBLB 2,A16,Amarillo,Lago Maravilloso,+,cocos,,+,+,-,-,+++,+,+++,-,P,1,1,1,R,R,R,R,P,R,R,-,-,Kocuria sp,si,,Innova Sur sur
+15-may,D-3,LB/3,SBLB 4,A18,Blanquecino,Lago Maravilloso,-,Bacilos,,+,-,+,-,+++,+,+++,+++,+++,1,1,1,R,R,R,R,P,S,I,-,-,Pseudomonas sp.,si,MDR,Lechuga
+15-may,D-5,LB/3,SBLB 6,A20,Blanquecino,Lago Maravilloso,+,Bacilos,,+,-,+,-,+++,+,-,+++,+++,1,1,1,R,R,R,R,P,I,R,-,-,Pseudomonas sp.,si,MDR,Lechuga
+15-may,D-7,LB/3,SBLB 8,A22,Blanquecino,Lago Maravilloso,-,bacilos,,+,-,+,+,+,+,+++,++,+++,1,1,1,R,R,R,R,P,R,R,-,+,Pseudomonas sp.,,MDR,
+15-may,C2,LB/3,SBLA 2,A29,Blanco,Laguna Amarga,+,Bacilos,,+,-,-,P,+,-,+,-,P,1,1,1,R,R,R,?,P,R,I,-,+,Peribacillus sp.,si,MDR,Mike
+15-may,J2,LB/3,LA 15,A3,amarilla,Laguna Amarga,+,Bacilos,,+,-,- ,+,+,+,+++,+,+,1,1,1,R,R,R,R,P,R,I,-,+,Bacillus sp.,si,,Jovan
+15-may,J3,LB/3,LA 16,A4,Blanco,Laguna Amarga,+,Bacilos,,+,-,+,-,+++,+,++,-,P,1,1,1,R,R,R,R,P,R,R,-,+,Bacillus sp.,si,,Jovan
+,,CM,PLA 14,X19,Blanco,Planta laguna amarga,+,Bacilos,,-,-,++,-,++,+,+++,-,P,,,1,,,,,,,,,,Bacillus sp.,,,
+10-may,F6,TSB,PE 10,B14,Negro,lago pehoe,+,Bacilos,,+,-,++,+,+++,-,++,++,,,,1,,,,,,,,-,+,Janthinobacterium sp.,,,Mike
+10-may,J9,TSB,PLA 3,B16,Café oscuro,Planta laguna amarga,+,Bacilos,Filamentosos,-,-,-,++,++,-,++,-,,,,1,,,,,,,,-,+,Bacillus sp.,,,Mike
+10-may,H2,TSB,LG 2,B18,Blanco,Lago grey,+,cocos,,+,-,+,++,+++,+,++,++,,,,1,,,,,,,,+,+,Enterococcus sp.,,,
+10-may,H5,TSB,LG 6,B21,Blanco,Lago grey,+,Bacilos,,+,-,+,+++,+,+,+,+,,,,1,,,,,,,,-,-,Paenibacillus sp.,,,
+10-may,G9,TSB,SBLA 1,B25,blanco,laguna amarga,+,cocos,,-,-,-,+,-,+,+,-,,,,1,,,,,,,,-,+,Bacillus sp.,si,,
+10-may,I5,TSB,LA 5,B5,Rojo,laguna amarga,+,Bacilos,,++,-,+,-,-,+,wp,+,,1,1,1,,,,,,,,-,+,Dietzia sp.,,,Mike
+10-may,J5,CM,LA 18,C2,Anaranjado,Laguna Amarga,+,Bacilos,,+,-,-,+++,-,+++,+++,-,,,,1,,,,,,,,-,+,Aerococcus sp.,,,
+10-may,F8,CM,PE 14,C4,Amarillo,Lago pehoe,+,Cocos,,-,+,-,-,-,++,-,-,++,,,1,,,,,,,,-,-,Staphylococcus sp.,,,Innova Sur Sur
+10-may,J10,CM,PLA 12,C5,Naranjo,Planta L. Amarga,+,cocos,,-,+,-,-,-,+++,-,-,-,,,1,,,,,,,,-,+,Planococcus sp,,,Innova Sur Sur
+10-may,J8,CM,PLA 13,C6,Rojo,Planta L. Amarga,+,bacilos,,-,-,-,-,-,-,-,-,+++,,,1,,,,,,,,-,+,Arthrobacter sp.,,,Innova Sur Sur
+10-may,E1,CM,SBPE 1,C8,Blanco,Lago pehoe,+,Bacilos,,+,-,+,+,-,++,+,+,P,,,1,,,,,,,,-,+,Pseudomonas sp.,,MDR,
+,,TSA,PL3,X4,negro,,+,bacilos,,+,-,+,-,-,+,+++,-,,,,,,,,,,,,,,Bacillus sp.,,,

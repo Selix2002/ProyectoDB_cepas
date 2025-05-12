@@ -1,0 +1,17 @@
+[project]
+name = "proyectodb-cepas"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "advanced-alchemy>=1.4.2",
+    "aiosqlite>=0.21.0",
+    "alembic>=1.15.2",
+    "litestar>=2.16.0",
+    "pandas>=2.2.3",
+    "pgcli>=4.3.0",
+    "pydantic>=2.11.4",
+    "sqlalchemy>=2.0.40",
+    "uvicorn>=0.34.2",
+]
