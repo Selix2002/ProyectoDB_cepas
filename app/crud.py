@@ -38,6 +38,7 @@ from app.dtos import (
     ResistenciaAntibioticaCreateDTO,
     CaracterizacionGeneticaCreateDTO,
     ProyectoCreateDTO,
+
     CepaReadDTO,
     AlmacenamientoReadDTO,
     MedioCultivoReadDTO,
@@ -46,7 +47,17 @@ from app.dtos import (
     CrecimientoTemperaturaReadDTO,
     ResistenciaAntibioticaReadDTO,
     CaracterizacionGeneticaReadDTO,
-    ProyectoReadDTO
+    ProyectoReadDTO,
+    
+    CepaUpdateDTO,
+    AlmacenamientoUpdateDTO,
+    MedioCultivoUpdateDTO,
+    MorfologiaUpdateDTO,
+    ActividadEnzimaticaUpdateDTO,
+    CrecimientoTemperaturaUpdateDTO,
+    ResistenciaAntibioticaUpdateDTO,
+    CaracterizacionGeneticaUpdateDTO,
+    ProyectoUpdateDTO
 )
 from app.models import (
     Cepa,

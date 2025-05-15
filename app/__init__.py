@@ -1,4 +1,3 @@
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.models import Base  # Asegúrate de importar tu Base
 from app.crud import CepaController
