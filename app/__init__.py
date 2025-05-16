@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from app.models import Base  # Asegúrate de importar tu Base
-from app.crud import CepaController
+from app.crud import CepaController,AlmacenamientoController, MedioCultivoController, MorfologiaController, ActividadEnzimaticaController, CrecimientoTemperaturaController, ResistenciaAntibioticaController, CaracterizacionGeneticaController, ProyectoController
 from litestar.plugins.sqlalchemy import SQLAlchemyPlugin, SQLAlchemySyncConfig
 from litestar import Litestar
 from litestar.openapi.config import OpenAPIConfig
@@ -11,7 +11,7 @@ db_config = SQLAlchemySyncConfig(
 )
 slqa_plugin = SQLAlchemyPlugin(config = db_config)
 app = Litestar(
-    route_handlers=[CepaController],plugins = [slqa_plugin],debug=True,
+    route_handlers=[CepaController,AlmacenamientoController,MedioCultivoController,MorfologiaController,ActividadEnzimaticaController, CrecimientoTemperaturaController, ResistenciaAntibioticaController, CaracterizacionGeneticaController, ProyectoController],plugins = [slqa_plugin],debug=True,
     openapi_config=OpenAPIConfig(
         title="Mi API",
         version="1.0.0",
