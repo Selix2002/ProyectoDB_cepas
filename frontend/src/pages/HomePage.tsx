@@ -1,66 +1,80 @@
 // src/pages/HomePage.tsx
-//import { useQuery } from "@tanstack/react-query";
-//import { getCepsas, type Cepa } from "../services/cepas";
-//import { CepsasTable } from "../components/CepasTable";
-
-// src/pages/HomePage.tsx
-//import React from 'react';
-
+import React, { useState } from 'react'
+import DropdownMenu from '../components/DropdownMenu'
+import CepasTable from '../components/CepasTable'
+import { SlidersHorizontal, FlaskConical, MoreVertical } from 'lucide-react'
 
 export function HomePage() {
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
-    <div className="flex flex-col h-screen m-0 p-0 box-border">
+    <div className="flex flex-col min-h-screen m-0 p-0 box-border bg-gray-900 text-white">
       {/* Cabecera */}
-      <div className="div-head flex-none h-16 min-h-0 border flex items-center justify-center px-4 relative">
-        <div className="div-title absolute left-4 border rounded px-4 py-2">
-          DIV_TITLE
+      <div className="relative flex-none h-16 flex items-center justify-center px-4 border-b border-gray-700">
+        {/* Botón Añadir Cepa en esquina superior izquierda */}
+        <button className="absolute left-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
+          + Añadir Cepa
+        </button>
+        {/* Botón menú desplegable en esquina superior derecha */}
+        <button
+          className="absolute right-4 p-2 rounded hover:bg-gray-700"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <MoreVertical className="h-6 w-6 text-white" />
+        </button>
+
+        <DropdownMenu
+          isOpen={menuOpen}
+          onClose={() => setMenuOpen(false)}
+        />
+        {/* Título centrado */}
+        <span className="text-xl font-medium">Dashboard para Gestión de Cepas Bacterianas</span>
+      </div>
+
+      {/* Estadísticas */}
+      <div className="p-15 flex flex-wrap items-center gap-4">
+        {/* Atributos Definidos: empuja todo lo demás a la derecha */}
+        <div className="mr-auto flex items-center space-x-4 bg-gray-800 rounded-lg p-10">
+          <div className="bg-green-500 p-3 rounded-full">
+            <SlidersHorizontal className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-green-400 uppercase">
+              Atributos definidos
+            </span>
+            <span className="text-4xl font-bold leading-tight">
+              N° ATRIBUTOS
+            </span>
+            <span className="text-sm text-gray-400">
+              Registrados
+            </span>
+          </div>
         </div>
-        <span className="text-xl font-medium">DIV_HEAD</span>
-        <div className="div-button absolute right-4 border rounded px-4 py-2">
-          DIV_AddCepa
+
+        {/* Total Cepas: alineada a la derecha */}
+        <div className="flex items-center space-x-4 bg-gray-800 rounded-lg p-10">
+          <div className="bg-green-500 p-3 rounded-full">
+            <FlaskConical className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-green-400 uppercase">
+              Total cepas
+            </span>
+            <span className="text-4xl font-bold leading-tight">
+              N° DE CEPAS
+            </span>
+            <span className="text-sm text-gray-400">
+              Registradas
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Sección general */}
-      <div className="div-general basis-0 grow-[2] min-h-0 border p-4 box-border flex items-center justify-center overflow-auto">
-        <div className="flex w-full h-full space-x-4">
-          <div className="flex-1 border rounded p-4 flex items-center justify-center">
-            DIV_TotalCepas
-          </div>
-          <div className="flex-1 border rounded p-4 flex items-center justify-center">
-            DIV_TotalAtrib
-          </div>
-        </div>
-      </div>
-
-      {/* Búsqueda */}
-      <div className="div-busqueda flex-none h-16 min-h-0 border flex items-center justify-center overflow-hidden px-4">
-        DIV_BUSQUEDA
-      </div>
-
-      {/* Filtros */}
-      <div className="div-filtros flex-auto border p-4 box-border flex flex-col overflow-auto">        {/* Título */}
-        <div className="div-filtros-title border rounded px-4 py-2 w-full max-w-lg mb-4">
-          TITLE
-        </div>
-        {/* Contenedores de filtros */}
-        <div className="flex flex-1 w-full space-x-4 mb-4">
-          <div className="flex-1 border rounded p-4 flex items-center justify-center" >
-            DIV_FILTROS
-          </div>
-          <div className="flex-1 border rounded p-4 flex items-center justify-center">
-            DIV_AddFiltros
-          </div>
-        </div>
-        {/* Botón de aplicar */}
-        <div className="div-apply-filtros border rounded px-4 py-2 self-start">
-          DIV_ApplyFiltros
-        </div>
-      </div>
-
-      {/* Tabla */}
-      <div className="div-tabla flex-none h-64 border p-4 box-border flex items-center justify-center overflow-auto">        DIV_TABLA
+      {/* Tabla de Cepas */}
+      <div className="flex-1 border-t border-gray-700 p-4 box-border">
+        <CepasTable />
       </div>
     </div>
-  );
+  )
 }
+
+export default HomePage
