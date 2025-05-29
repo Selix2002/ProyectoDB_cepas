@@ -1,17 +1,28 @@
-import { useMemo} from "react";
-import { AgGridReact } from "ag-grid-react";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { useCombinedData } from "../hooks/useCepasFull";
-ModuleRegistry.registerModules([AllCommunityModule]);
+import { AgGridReact } from 'ag-grid-react'
+import type { GridReadyEvent } from 'ag-grid-community'
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
+import { useMemo } from 'react'
+import { useCombinedData } from '../hooks/useCepasFull'
 
+
+
+
+
+ModuleRegistry.registerModules([AllCommunityModule]);
+export type GridReadyCallback = (params: GridReadyEvent) => void
+
+interface CepasTableProps {
+  onGridReady?: GridReadyCallback
+}
 /**
  * CepasTable: componente independiente que renderiza un Ag Grid con datos de cepas cargadas desde la API.
  */
-export function CepasTable() {
-  const { rowData, loading, error } = useCombinedData();
+export function CepasTable({ onGridReady }: CepasTableProps) {
+   const { rowData, loading, error } = useCombinedData();
   const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
 
-const columnDefs = useMemo(
+
+var columnDefs = useMemo(
   () => [
     {
       headerName: "ID",
@@ -20,6 +31,7 @@ const columnDefs = useMemo(
       pinned: "left",
       width: 80,
       editable: false, // No editable
+      
     },
     {
       headerName: "Cepa",
@@ -170,6 +182,7 @@ const columnDefs = useMemo(
         <AgGridReact
           columnDefs={columnDefs}
           rowData={rowData}
+          onGridReady={onGridReady}
           defaultColDef={{
             minWidth: 100, // ancho mínimo de cada columna
             filter: true, // habilita el filtrado por defecto

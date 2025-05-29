@@ -1,50 +1,61 @@
-// src/components/DropdownMenu.tsx
-import React from 'react'
+import React, { useRef, useEffect, useReducer } from 'react';
+import type { Column } from 'ag-grid-community';
 
-interface DropdownMenuProps {
-  isOpen: boolean
-  onClose: () => void
+export interface DropdownMenuProps {
+  isOpen: boolean;
+  columns: Column[];
+  onToggle: (colId: string, visible: boolean) => void;
+  onClose: () => void;
 }
 
-export const DropdownMenu: React.FC<DropdownMenuProps> = ({ isOpen, onClose }) => {
+export default function DropdownMenu({
+  isOpen,
+  columns,
+  onToggle,
+  onClose
+}: DropdownMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  // Reducer para forzar re-render tras toggle
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
   return (
     <div
-      className={`fixed top-0 right-0 h-screen w-1/5 bg-gray-800 bg-opacity-70 shadow-lg z-50
-        transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}
-        transition-transform duration-300 ease-in-out`}
+      ref={menuRef}
+      className="absolute right-4 top-full mt-2 w-64 bg-gray-800 text-white rounded shadow-lg z-50"
     >
-      {/* Botón de cierre */}
-      <div className="flex justify-end p-4">
-        <button
-          onClick={onClose}
-          className="text-gray-300 hover:text-white focus:outline-none"
-        >
-          Cerrar ✕
-        </button>
+      <div className="flex flex-col max-h-128 overflow-y-auto p-6">
+        {columns.map(column => {
+          const colId = column.getColId();
+          const visible = column.isVisible();
+          return (
+            <label key={colId} className="flex items-center justify-between py-1">
+              <span className="truncate">{column.getColDef().headerName}</span>
+              <input
+                type="checkbox"
+                checked={visible}
+                onChange={() => {
+                  onToggle(colId, !visible);
+                  forceUpdate();
+                }}
+              />
+            </label>
+          );
+        })}
       </div>
-
-      {/* Opciones del menú */}
-      <nav className="px-4 pt-2">
-        <ul className="space-y-2">
-          <li>
-            <button className="w-full text-left text-white hover:bg-gray-700 rounded p-2">
-              Opción 1
-            </button>
-          </li>
-          <li>
-            <button className="w-full text-left text-white hover:bg-gray-700 rounded p-2">
-              Opción 2
-            </button>
-          </li>
-          <li>
-            <button className="w-full text-left text-white hover:bg-gray-700 rounded p-2">
-              Opción 3
-            </button>
-          </li>
-        </ul>
-      </nav>
     </div>
-  )
+  );
 }
-
-export default DropdownMenu
