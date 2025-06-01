@@ -5,18 +5,21 @@ import CepasTable from '../components/CepasTable'
 import type { GridReadyCallback } from '../components/CepasTable'
 import type { GridApi, Column } from 'ag-grid-community'
 import { SlidersHorizontal, FlaskConical, MoreVertical } from 'lucide-react'
+import TableStats_col, { TableStats_row } from '../components/TableStats';
 
 export function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [columns, setColumns] = useState<Column[]>([])
   const [gridApi, setGridApi] = useState<GridApi>()
+  const [rowCount_, setRowCount] = useState(0)
 
   // 1) Capturamos el GridApi y la lista inicial de Column[]  
   const handleGridReady: GridReadyCallback = params => {
     const api = params.api
     setGridApi(api)
-    // usamos api.getColumns() para obtener las Column objects :contentReference[oaicite:0]{index=0}
     setColumns(api.getColumns() ?? [])
+    const rowCount = api.getDisplayedRowCount()
+    setRowCount(rowCount)
   }
 
   // 2) Al hacer toggle, llamamos a gridApi.setColumnsVisible(...) y luego
@@ -66,9 +69,7 @@ export function HomePage() {
             <span className="text-sm font-semibold text-green-400 uppercase">
               Atributos definidos
             </span>
-            <span className="text-4xl font-bold leading-tight">
-              N° ATRIBUTOS
-            </span>
+              <TableStats_col colCount={columns.length}/>
             <span className="text-sm text-gray-400">
               Registrados
             </span>
@@ -76,7 +77,7 @@ export function HomePage() {
         </div>
 
         {/* Total Cepas */}
-        <div className="flex items-center space-x-4 bg-gray-800 rounded-lg p-10">
+        <div className="flex items-center space-x-4 bg-gray-800 rounded-lg p-10 div-cepas">
           <div className="bg-green-500 p-3 rounded-full">
             <FlaskConical className="h-6 w-6 text-white" />
           </div>
@@ -84,9 +85,7 @@ export function HomePage() {
             <span className="text-sm font-semibold text-green-400 uppercase">
               Total cepas
             </span>
-            <span className="text-4xl font-bold leading-tight">
-              N° DE CEPAS
-            </span>
+            <TableStats_row rowCount={rowCount_}/>
             <span className="text-sm text-gray-400">
               Registradas
             </span>

@@ -85,3 +85,6 @@ button:focus-visible {
   flex: none !important;
   min-height: 33vh !important;
 }
+.div-cepas{
+  min-width: 18%;
+}
