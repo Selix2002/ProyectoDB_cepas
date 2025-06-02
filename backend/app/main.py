@@ -8,15 +8,7 @@ from litestar.openapi.config import OpenAPIConfig
 from litestar.openapi.plugins import ScalarRenderPlugin
 from app.models import Base
 from app.crud import (
-    CepaController,
-    AlmacenamientoController,
-    MedioCultivoController,
-    MorfologiaController,
-    ActividadEnzimaticaController,
-    CrecimientoTemperaturaController,
-    ResistenciaAntibioticaController,
-    CaracterizacionGeneticaController,
-    ProyectoController,
+    CepaController
 )
 # 1. Configuración CORS
 cors = CORSConfig(
@@ -46,7 +38,7 @@ static_router = create_static_files_router(
 
 # 3. Instancia de Litestar
 app = Litestar(
-    route_handlers=[static_router,CepaController,AlmacenamientoController, MedioCultivoController, MorfologiaController, ActividadEnzimaticaController, CrecimientoTemperaturaController, ResistenciaAntibioticaController, CaracterizacionGeneticaController, ProyectoController],  # lista tus controllers o funciones route
+    route_handlers=[static_router,CepaController],  # lista tus controllers o funciones route
     openapi_config=OpenAPIConfig(
         title="Backend Cepas",
         description="API para la gestión de cepas",

@@ -35,9 +35,17 @@ export function HomePage() {
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Cabecera */}
       <div className="relative h-16 flex items-center justify-center border-b border-gray-700 px-4">
-        <button className="absolute left-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
-          + Añadir Cepa
-        </button>
+        {/* Contenedor de botones en la esquina superior izquierda */}
+        <div className="absolute left-4 flex space-x-2">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+            + Agregar Atributo
+          </button>
+          <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
+            + Añadir Cepa
+          </button>
+        </div>
+
+        {/* Botón menú desplegable en esquina superior derecha */}
         <button
           className="absolute right-4 p-2 rounded hover:bg-gray-700"
           onClick={() => setMenuOpen(v => !v)}
@@ -102,7 +110,3 @@ export function HomePage() {
 }
 
 export default HomePage
-
-
-
-

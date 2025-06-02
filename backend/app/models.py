@@ -1,112 +1,150 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import JSONB
+from typing import Optional, List
 
-Base = declarative_base()
+from sqlalchemy import ForeignKey, String, Integer
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+class Base(DeclarativeBase):
+    """Clase base para todos los modelos, usando el nuevo estilo DeclarativeBase."""
+    pass
+
 
 class Cepa(Base):
-    __tablename__ = 'cepas'
+    __tablename__ = "cepas"
 
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String, nullable=False)
-    cod_lab = Column(String, nullable=True)
-    pigmentacion = Column(String, nullable=True)
-    origen = Column(String, nullable=True)
-    datos_extra = Column(JSONB, nullable=True)  # Campo flexible tipo JSONB
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    nombre: Mapped[str] = mapped_column(String, nullable=False)
+    cod_lab: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    pigmentacion: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    origen: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    datos_extra: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
 
-    almacenamiento = relationship("Almacenamiento", back_populates="cepa", uselist=False)
-    medio_cultivo = relationship("MedioCultivo", back_populates="cepa", uselist=False)
-    morfologia = relationship("Morfologia", back_populates="cepa", uselist=False)
-    actividad_enzimatica = relationship("ActividadEnzimatica", back_populates="cepa", uselist=False)
-    crecimiento_temperatura = relationship("CrecimientoTemperatura", back_populates="cepa", uselist=False)
-    resistencia_antibiotica = relationship("ResistenciaAntibiotica", back_populates="cepa", uselist=False)
-    caracterizacion_genetica = relationship("CaracterizacionGenetica", back_populates="cepa", uselist=False)
-    proyecto = relationship("Proyecto", back_populates="cepa", uselist=False)
+    # Relaciones uno-a-uno (uselist=False) con los demás modelos
+    almacenamiento: Mapped[Optional["Almacenamiento"]] = relationship(
+        back_populates="cepa",uselist=False
+    )
+    medio_cultivo: Mapped[Optional["MedioCultivo"]] = relationship(
+        back_populates="cepa", uselist=False
+    )
+    morfologia: Mapped[Optional["Morfologia"]] = relationship(
+        back_populates="cepa", uselist=False
+    )
+    actividad_enzimatica: Mapped[Optional["ActividadEnzimatica"]] = relationship(
+        back_populates="cepa", uselist=False
+    )
+    crecimiento_temperatura: Mapped[Optional["CrecimientoTemperatura"]] = relationship(
+        back_populates="cepa", uselist=False
+    )
+    resistencia_antibiotica: Mapped[Optional["ResistenciaAntibiotica"]] = relationship(
+        back_populates="cepa", uselist=False
+    )
+    caracterizacion_genetica: Mapped[Optional["CaracterizacionGenetica"]] = relationship(
+        back_populates="cepa", uselist=False
+    )
+    proyecto: Mapped[Optional["Proyecto"]] = relationship(
+        back_populates="cepa", uselist=False
+    )
+
 
 class Almacenamiento(Base):
-    __tablename__ = 'almacenamiento'
+    __tablename__ = "almacenamiento"
 
-    id = Column(Integer, primary_key=True)
-    envio_puq = Column(String, nullable=True)
-    temperatura_menos80 = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="almacenamiento")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    envio_puq: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    temperatura_menos80: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="almacenamiento")
+
 
 class MedioCultivo(Base):
-    __tablename__ = 'medios_cultivo'
+    __tablename__ = "medios_cultivo"
 
-    id = Column(Integer, primary_key=True)
-    medio = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="medio_cultivo")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    medio: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="medio_cultivo")
+
 
 class Morfologia(Base):
-    __tablename__ = 'morfologia'
+    __tablename__ = "morfologia"
 
-    id = Column(Integer, primary_key=True)
-    gram = Column(String, nullable=True)
-    morfologia_1 = Column(String, nullable=True)
-    morfologia_2 = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="morfologia")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    gram: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    morfologia_1: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    morfologia_2: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="morfologia")
+
 
 class ActividadEnzimatica(Base):
-    __tablename__ = 'actividad_enzimatica'
+    __tablename__ = "actividad_enzimatica"
 
-    id = Column(Integer, primary_key=True)
-    lecitinasa = Column(String, nullable=True)
-    ureasa = Column(String, nullable=True)
-    lipasa = Column(String, nullable=True)
-    amilasa = Column(String, nullable=True)
-    proteasa = Column(String, nullable=True)
-    catalasa = Column(String, nullable=True)
-    celulasa = Column(String, nullable=True)
-    fosfatasa = Column(String, nullable=True)
-    aia = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="actividad_enzimatica")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    lecitinasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    ureasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    lipasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    amilasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    proteasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    catalasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    celulasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    fosfatasa: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    aia: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="actividad_enzimatica")
+
 
 class CrecimientoTemperatura(Base):
-    __tablename__ = 'crecimiento_temperatura'
+    __tablename__ = "crecimiento_temperatura"
 
-    id = Column(Integer, primary_key=True)
-    temp_5 = Column(String, nullable=True)
-    temp_25 = Column(String, nullable=True)
-    temp_37 = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="crecimiento_temperatura")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    temp_5: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    temp_25: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    temp_37: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="crecimiento_temperatura")
+
 
 class ResistenciaAntibiotica(Base):
-    __tablename__ = 'resistencia_antibiotica'
+    __tablename__ = "resistencia_antibiotica"
 
-    id = Column(Integer, primary_key=True)
-    amp = Column(String, nullable=True)
-    ctx = Column(String, nullable=True)
-    cxm = Column(String, nullable=True)
-    caz = Column(String, nullable=True)
-    ak = Column(String, nullable=True)
-    c = Column(String, nullable=True)
-    te = Column(String, nullable=True)
-    am_ecoli = Column(String, nullable=True)
-    am_saureus = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="resistencia_antibiotica")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    amp: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    ctx: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cxm: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    caz: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    ak: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    c: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    te: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    am_ecoli: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    am_saureus: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="resistencia_antibiotica")
+
 
 class CaracterizacionGenetica(Base):
-    __tablename__ = 'caracterizacion_genetica'
+    __tablename__ = "caracterizacion_genetica"
 
-    id = Column(Integer, primary_key=True)
-    gen_16s = Column(String, nullable=True)
-    metabolomica = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="caracterizacion_genetica")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    gen_16s: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    metabolomica: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="caracterizacion_genetica")
+
 
 class Proyecto(Base):
-    __tablename__ = 'proyectos'
+    __tablename__ = "proyectos"
 
-    id = Column(Integer, primary_key=True)
-    responsable = Column(String, nullable=True)
-    nombre_proyecto = Column(String, nullable=True)
-    cepa_id = Column(Integer, ForeignKey('cepas.id'))
-    cepa = relationship("Cepa", back_populates="proyecto")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    responsable: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    nombre_proyecto: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cepa_id: Mapped[int] = mapped_column(Integer, ForeignKey("cepas.id"))
+
+    cepa: Mapped["Cepa"] = relationship(back_populates="proyecto")
