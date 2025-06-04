@@ -54,7 +54,7 @@ def root() -> dict:
 
 # 6. Creamos la app Litestar
 app = Litestar(
-    route_handlers=[static_router, CepaController],
+    route_handlers=[root,static_router, CepaController],
     openapi_config=OpenAPIConfig(
         title="Backend Cepas",
         description="API para la gestión de cepas",
