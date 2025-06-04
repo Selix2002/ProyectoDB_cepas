@@ -48,7 +48,7 @@ static_router = create_static_files_router(
     html_mode=True,
 )
 
-@get(path="/")
+@get(path="/", methods=["GET", "HEAD"], sync_to_thread=False)
 def root() -> dict:
     return {"status": "ok", "message": "API de Cepas funcionando"}
 
