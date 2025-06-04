@@ -28,32 +28,19 @@ export const fetchCepasFull = (): Promise<any[]> =>
       return [];
     });
 
-/**
- * Fetch de almacenamiento con control de errores y validación de datos.
- * @returns Promise<any[]>: array de storage o array vacío si hay error o datos inválidos.
+    /**
+ * updateCepa: envía un PATCH a /cepas/update/{id}
+ * @param cepaId el ID de la cepa a actualizar
+ * @param data un objeto con los campos que cambiaron (p. ej. { nombre: "XYZ" } o { almacenamiento: { temperatura_menos80: true } })
  */
-export const fetchStorageFull = (): Promise<any[]> =>
+export const updateCepa = (
+  cepaId: number,
+  data: Record<string, any>
+): Promise<any> =>
   axios
-    .get("/almacenamiento/get-all")
-    .then((res) => {
-      // Si tu API wrappea los datos en { data: […] }, extráelos:
-      const payload = Array.isArray(res.data)
-        ? res.data
-        : res.data.data ?? [];
-      if (!Array.isArray(payload)) {
-        console.error("fetchStorageFull → datos inválidos:", res.data);
-        return [];
-      }
-      return payload;
-    })
+    .patch(`/cepas/update/${cepaId}`, data)
+    .then((res) => res.data)
     .catch((error) => {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          `fetchStorageFull AxiosError [${error.response?.status}]:`,
-          error.message
-        );
-      } else {
-        console.error("fetchStorageFull Error inesperado:", error);
-      }
-      return [];
+      console.error(`Error al actualizar la cepa ${cepaId}:`, error);
+      throw error;
     });

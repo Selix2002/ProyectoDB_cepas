@@ -1,206 +1,134 @@
-import { AgGridReact } from 'ag-grid-react'
-import type { GridReadyEvent } from 'ag-grid-community'
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
-import { useMemo } from 'react'
-import { useCombinedData } from '../hooks/useCepasFull'
+// src/components/CepasTable.tsx
 
-
-
-
+import { AgGridReact } from "ag-grid-react";
+import type { GridReadyEvent, CellValueChangedEvent } from "ag-grid-community";
+import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import { useState, useEffect, useMemo } from "react";
+import { fetchCepasFull } from "../services/CepasQuery";
+import { actualizarCepaPorCampo } from "../utils/cepaUpdate";
+import { cepasColumnDefs } from "./CepasColumns";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
-export type GridReadyCallback = (params: GridReadyEvent) => void
+
+export type GridReadyCallback = (params: GridReadyEvent) => void;
 
 interface CepasTableProps {
-  onGridReady?: GridReadyCallback
+  onGridReady?: GridReadyCallback;
 }
-/**
- * CepasTable: componente independiente que renderiza un Ag Grid con datos de cepas cargadas desde la API.
- */
-export function CepasTable({ onGridReady }: CepasTableProps) {
-   const { rowData, loading, error } = useCombinedData();
+
+export default function CepasTable({ onGridReady }: CepasTableProps) {
+  const [rowData, setRowData] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
+
   const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
 
+  // Estado para controlar la notificación (texto y tipo)
+  const [notification, setNotification] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
 
-var columnDefs = useMemo(
-  () => [
-    {
-      headerName: "ID",
-      field: "id",
-      filter: "agNumberColumnFilter",
-      pinned: "left",
-      width: 80,
-      editable: false, // No editable
-      
-    },
-    {
-      headerName: "Cepa",
-      field: "nombre",
-      filter: "agTextColumnFilter",
-      pinned: "left",
-      width: 80,
-    },
-    {
-      headerName: "Código Lab",
-      field: "cod_lab",
-      filter: "agTextColumnFilter",
-      width: 150,
-    },
-    { headerName: "Origen", field: "origen", filter: "agTextColumnFilter" },
-    {
-      headerName: "Pigmentación",
-      field: "pigmentacion",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "Envío a Punta Arenas",
-      field: "envio_puq",
-      filter: "agTextColumnFilter",
-    },
-    { headerName: "Temperatura -80°", field: "temperatura_menos80", filter: "agTextColumnFilter" },
-    {
-      headerName: "Morfología",
-      field: "morfologia",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "Lecitinasa",
-      field: "lecitinasa",
-      filter: "agTextColumnFilter",
-    },
-    { headerName: "Ureasa", field: "ureasa", filter: "agTextColumnFilter" },
-    { headerName: "Lipasa", field: "lipasa", filter: "agTextColumnFilter" },
-    { headerName: "Amilasa", field: "amilasa", filter: "agTextColumnFilter" },
-    {
-      headerName: "Proteasa",
-      field: "proteasa",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "Catalasa",
-      field: "catalasa",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "Celulasa",
-      field: "celulasa",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "Fosfatasa",
-      field: "fosfatasa",
-      filter: "agTextColumnFilter",
-    },
-    { headerName: "AIA", field: "aia", filter: "agTextColumnFilter" },
-    { headerName: "-80° C", field: "-80C", filter: "agNumberColumnFilter" },
-    { headerName: "+5 °C", field: "+5C", filter: "agNumberColumnFilter" },
-    { headerName: "+25 °C", field: "+25C", filter: "agNumberColumnFilter" },
-    { headerName: "+37 °C", field: "+37C", filter: "agNumberColumnFilter" },
-    {
-      headerName: "+AMP (µg/ml)",
-      field: "+AMP_mg_ml_",
-      filter: "agNumberColumnFilter",
-    },
-    {
-      headerName: "+CTX (µg/ml)",
-      field: "+CTX_mg_ml_",
-      filter: "agNumberColumnFilter",
-    },
-    {
-      headerName: "+CXM (µg/ml)",
-      field: "+CXM_mg_ml_",
-      filter: "agNumberColumnFilter",
-    },
-    {
-      headerName: "+CAZ (µg/ml)",
-      field: "+CAZ_mg_ml_",
-      filter: "agNumberColumnFilter",
-    },
-    {
-      headerName: "+AK (µg/ml)",
-      field: "+AK_mg_ml_",
-      filter: "agNumberColumnFilter",
-    },
-    {
-      headerName: "+C (µg/ml)",
-      field: "+C_mg_ml_",
-      filter: "agNumberColumnFilter",
-    },
-    {
-      headerName: "+TE (µg/ml)",
-      field: "+TE_mg_ml_",
-      filter: "agNumberColumnFilter",
-    },
-    {
-      headerName: "AM E.coli",
-      field: "am_e_coli",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "AM S.aureus",
-      field: "am_s_aureus",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "16S rRNA",
-      field: "16s_rna",
-      filter: "agTextColumnFilter",
-    },
-    {
-      headerName: "Metabolómica",
-      field: "metabolomica",
-      filter: "agTextColumnFilter",
-    },
-    { headerName: "Nicolás", field: "nicolas", filter: "agTextColumnFilter" },
-    {
-      headerName: "Proyecto",
-      field: "proyecto",
-      filter: "agTextColumnFilter",
-    },
-    // Añade aquí más columnas según tus relaciones...
-  ],
-  []
-);
-   if (loading) return <div>Cargando cepas...</div>;
+  // 1) Carga inicial de datos
+  useEffect(() => {
+    setLoading(true);
+    fetchCepasFull()
+      .then((data) => {
+        setRowData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err as Error);
+        setLoading(false);
+      });
+  }, []);
+
+  // 2) Handler que dispara cuando el usuario termina de editar una celda
+  const handleCellValueChanged = async (params: CellValueChangedEvent) => {
+    // 2.1) Si no hubo cambio real, no hacemos nada
+    if (params.oldValue === params.newValue) return;
+
+    const updatedRow = params.data;
+    const changedField = params.colDef.field as string;
+    const newValue = params.newValue;
+
+    // 2.2) Si el usuario dejó la casilla vacía ("" o solo espacios), mostramos error y NO llamamos al backend
+    const texto = typeof newValue === "string" ? newValue.trim() : String(newValue).trim();
+    console.log(texto);
+    console.log(typeof texto);
+    if (texto == "" || texto == null || texto == "null") {
+      setNotification({
+        text: 'No se puede dejar la casilla vacía, si desea dejarla vacía, escribir "N/I"',
+        type: "error",
+      });
+     
+      setTimeout(() => setNotification(null), 3000);
+      return; // Salimos sin llamar a actualizarCepaPorCampo
+    }
+
+    try {
+      // 2.3) Si pasa el chequeo, llamamos al util que arma el payload y hace el update
+      await actualizarCepaPorCampo(updatedRow.id, changedField, newValue);
+
+      setNotification({
+        text: "Cambios guardados con éxito!",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Error al actualizar en backend:", err);
+      setNotification({
+        text: "Hubo un error al guardar los cambios",
+        type: "error",
+      });
+    }
+
+    // 2.4) Limpiar la notificación tras 3 segundos
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  if (loading) return <div>Cargando cepas...</div>;
   if (error) return <div>Error al cargar datos: {error.message}</div>;
+
   return (
-    // 1) Este wrapper limita el ancho y añade scroll horizontal
-    <div
-      style={{
-        width: "flex", // ancho máximo visible
-        overflowX: "auto", // habilita scroll-x cuando haga falta
-      }}
-    >
-      {/* 2) El grid en sí puede tener un minWidth mayor */}
-      <div
-        className="ag-theme-alpine custom-space"
-        style={{
-          width: "100%", // ocupa todo el wrapper
-          minWidth: "1000px", // ancho mínimo para forzar scroll
-        }}
-      >
-        <AgGridReact
-          columnDefs={columnDefs}
-          rowData={rowData}
-          onGridReady={onGridReady}
-          defaultColDef={{
-            minWidth: 100, // ancho mínimo de cada columna
-            filter: true, // habilita el filtrado por defecto
-            sortable: true,
-            editable: true, // habilita la edición de celdas
-            resizable: true,
-            wrapHeaderText: true, // habilita el redimensionamiento de columnas
-          }}
-          pagination
-          paginationPageSize={10}
-          paginationPageSizeSelector={paginationPageSizeSelector}
-          domLayout="autoHeight"
-          //autoHeaderHeight={true}
-        />
+    <>
+      {/* Notificación */}
+      {notification && (
+        <div
+          className={`mb-2 px-4 py-2 rounded text-center ${
+            notification.type === "success"
+              ? "bg-blue-600 text-white"
+              : "bg-red-600 text-white"
+          }`}
+        >
+          {notification.text}
+        </div>
+      )}
+
+      <div style={{ width: "100%", overflowX: "auto" }}>
+        <div
+          className="ag-theme-alpine custom-space"
+          style={{ width: "100%", minWidth: "1000px" }}
+        >
+          <AgGridReact
+            columnDefs={cepasColumnDefs}
+            rowData={rowData}
+            onGridReady={onGridReady}
+            onCellValueChanged={handleCellValueChanged}
+            defaultColDef={{
+              minWidth: 100,
+              filter: true,
+              sortable: true,
+              editable: true,
+              resizable: true,
+              wrapHeaderText: true,
+            }}
+            pagination
+            paginationPageSize={10}
+            paginationPageSizeSelector={paginationPageSizeSelector}
+            domLayout="autoHeight"
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
-
-export default CepasTable;
-

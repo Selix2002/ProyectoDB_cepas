@@ -74,21 +74,29 @@ class CepaController(Controller):
 
             result: dict[str, Any] = {}
 
-            # 2.1) Columnas simples: tomo cada columna mapeada y omito las que terminen en "id"
+            # 2.1) Columnas simples: tomo cada columna mapeada y omito las que terminen en "id",
+            #       salvo que sea la PK "id" de la propia Cepa
             for column in cls.__mapper__.columns:
                 col_name = column.key
-                # Si el nombre de la columna termina en "id" (e.g., "id", "cepa_id"), la salto
+
+                # Si termina en "id":
                 if col_name.endswith("id"):
+                    # --- Permitimos "id" únicamente para la clase Cepa ---
+                    if col_name == "id" and isinstance(obj, Cepa):
+                        # incluimos cepa.id
+                        result[col_name] = getattr(obj, col_name)
+                        continue
+                    # Para cualquier otro "id" (ej. "cepa_id", o "id" de otras tablas), lo saltamos
                     continue
+
+                # columnas que no terminan en "id"
                 result[col_name] = getattr(obj, col_name)
 
             # 2.2) Relaciones: recorro cada relación definida
             for rel in cls.__mapper__.relationships:
                 rel_name = rel.key
 
-                # ---------- Punto clave: si la relación apunta de vuelta a Cepa, la salto ----------
-                # Normalmente esa relación de backref se llama "cepa". 
-                # Si cambiaste el nombre de la relación inversa, pon ahí ese nombre.
+                # Si la relación apunta de vuelta a Cepa, la salto (backref)
                 if rel_name == "cepa":
                     continue
 
@@ -105,7 +113,6 @@ class CepaController(Controller):
                         result[rel_name] = filter_ids(related_obj)
 
             return result
-
         # 3) Aplico el filtrado a cada Cepa y retorno la lista de diccionarios
         return [filter_ids(cepa) for cepa in cepas]
     @get("/get-by-id/{id:int}", dto=CepaReadDTO)  # READ
