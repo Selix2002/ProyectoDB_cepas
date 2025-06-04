@@ -18,7 +18,6 @@ cors = CORSConfig(
     allow_credentials=True,
 )
 
-# Leemos DATABASE_URL y forzamos psycopg2 si hiciera falta
 db_url = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:sebas@localhost/db_cepas")
 if db_url.startswith("postgresql://"):
     db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
@@ -30,15 +29,19 @@ db_config = SQLAlchemySyncConfig(
 )
 sql_plugin = SQLAlchemyPlugin(config=db_config)
 
-static_router = create_static_files_router(
-    path="/",  # opcional: monta tus archivos estáticos en "/"
-    directories=[ Path(__file__).resolve().parent.parent.parent / "frontend" / "public" ],
-    html_mode=True,
-)
-
+# Health check en "/"
 @get(path="/", methods=["GET", "HEAD"], sync_to_thread=False)
 def root() -> dict:
     return {"status": "ok", "message": "API de Cepas funcionando"}
+
+# Servir estáticos en "/inicio"
+static_router = create_static_files_router(
+    path="/inicio",
+    directories=[
+        Path(__file__).resolve().parent.parent.parent / "frontend" / "public"
+    ],
+    html_mode=True,
+)
 
 app = Litestar(
     route_handlers=[root, static_router, CepaController],
@@ -56,7 +59,6 @@ app = Litestar(
 
 if __name__ == "__main__":
     import uvicorn
-
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "app.main:app",
