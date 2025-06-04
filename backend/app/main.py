@@ -20,7 +20,7 @@ cors = CORSConfig(
 
 # 2. Plugin de SQLAlchemy (si lo usas)
 db_config = SQLAlchemySyncConfig(
-    connection_string="postgresql+psycopg2://postgres:sebas@localhost/db_cepas",
+    connection_string="postgresql://sebas:EmqyWAorS6D1rekjwtkCvTmmmRtVew88@dpg-d104f4ali9vc73dfidag-a/cepas_db_ies3",
     create_all=True,
     metadata=Base.metadata,
 )
