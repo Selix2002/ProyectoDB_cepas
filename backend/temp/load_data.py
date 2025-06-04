@@ -1,51 +1,38 @@
-# load_data.py
+# load_data.py (ubicado en backend/temp/load_data.py)
 
 import sys
 import os
+
+# 1) CARPETA donde está load_data.py
+THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))    # /opt/render/project/src/backend/temp
+
+# 2) CARPETA “backend” real (dos niveles arriba de THIS_FILE_DIR)
+BACKEND_DIR = os.path.abspath(os.path.join(THIS_FILE_DIR, os.pardir))  # /opt/render/project/src/backend
+
+# 3) Ahora sí, agregamos BACKEND_DIR al PYTHONPATH
+sys.path.append(BACKEND_DIR)
+
+# — de aquí en adelante sigue tu lógica existente —
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# ————————————————
-# 1) AÑADIMOS backend al PYTHONPATH
-#    de forma que “from app.models import …” funcione correctamente.
-#    Suponemos que este script está en la raíz del proyecto,
-#    y que tu carpeta de código (“main.py”, “app/models.py”, etc.) está en “backend/app/”.
-#————————————————————————
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))      # carpeta raíz del proyecto
-BACKEND_DIR = os.path.join(ROOT_DIR, "backend")            # ruta a /backend
-sys.path.append(os.path.join(BACKEND_DIR))                 # añado “backend” al PYTHONPATH
-
-
-# ————————————————
-# 2) LEEMOS DATABASE_URL DESDE EL ENTORNO
-#    Si se ha definido DATABASE_URL en Render (o en tu máquina local),
-#    la usamos; si no existe, cae a un fallback local.
-#————————————————————————
+# 4) LEEMOS DATABASE_URL
 raw_db_url = os.getenv(
     "DATABASE_URL",
-    # Fallback para desarrollo local, si no existe la var.:
     "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
 )
-
-# Forzamos psycopg2 si viene sin el sufijo:
 if raw_db_url.startswith("postgresql://"):
     db_url = raw_db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 else:
     db_url = raw_db_url
 
-# ————————————————
-# 3) Creamos el engine y sessionmaker con SQLAlchemy
-#————————————————————————
+# 5) CREAMOS ENGINE / SESSION
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
-# ————————————————
-# 4) IMPORTAMOS NUESTROS MODELOS
-#    Nota: ahora “backend” está en sys.path, así que “app.models” es válido.
-#————————————————————————
+# 6) IMPORTAMOS LOS MODELOS (AHORA FUNCIONARÁ)
 from app.models import (
     Cepa,
     Almacenamiento,
@@ -58,19 +45,11 @@ from app.models import (
     Proyecto,
 )
 
-
-# ————————————————
-# 5) LEEMOS EL CSV
-#    Suponemos que tienes un directorio “/data” en la raíz con el archivo.
-#————————————————————————
-csv_path = os.path.join(ROOT_DIR, "data", "cepas_16_4_25.csv")
+# 7) EL RESTO DE TU CÓDIGO DE INSERCIÓN…
+csv_path = os.path.join(os.path.abspath(os.path.join(THIS_FILE_DIR, os.pardir, os.pardir)), "data", "cepas_16_4_25.csv")
 df = pd.read_csv(csv_path)
 df = df.fillna("N/I")
 
-
-# ————————————————
-# 6) RECORREMOS CADA FILA E INSERTAMOS EN BD
-#————————————————————————
 for _, row in df.iterrows():
     cepa = Cepa(
         nombre=row["Cepa"],
@@ -80,7 +59,7 @@ for _, row in df.iterrows():
     )
     print(f"Procesando cepa: {cepa.nombre} ({cepa.cod_lab})")
     session.add(cepa)
-    session.flush()  # para que cepa.id esté disponible
+    session.flush()  # así tienes cepa.id
 
     session.add(
         Almacenamiento(
@@ -89,9 +68,7 @@ for _, row in df.iterrows():
             cepa_id=cepa.id,
         )
     )
-    session.add(
-        MedioCultivo(medio=row["Medio Cultivo"], cepa_id=cepa.id)
-    )
+    session.add(MedioCultivo(medio=row["Medio Cultivo"], cepa_id=cepa.id))
     session.add(
         Morfologia(
             gram=row["Gram"],
@@ -144,9 +121,6 @@ for _, row in df.iterrows():
         )
     )
 
-# ————————————————
-# 7) COMIT Y CIERRE DE SESIÓN
-#————————————————————————
 session.commit()
 session.close()
 print("✅ Importación finalizada.")
