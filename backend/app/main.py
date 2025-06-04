@@ -1,7 +1,7 @@
 # backend/app/main.py
 import os
 from pathlib import Path
-from litestar import Litestar
+from litestar import Litestar, get
 from litestar.static_files import create_static_files_router
 from litestar.config.cors import CORSConfig
 from litestar.plugins.sqlalchemy import SQLAlchemyPlugin, SQLAlchemySyncConfig
@@ -47,6 +47,10 @@ static_router = create_static_files_router(
     ],
     html_mode=True,
 )
+
+@get(path="/")
+def root() -> dict:
+    return {"status": "ok", "message": "API de Cepas funcionando"}
 
 # 6. Creamos la app Litestar
 app = Litestar(
