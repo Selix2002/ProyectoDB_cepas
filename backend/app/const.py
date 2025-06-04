@@ -1,0 +1,1 @@
+URL = "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
