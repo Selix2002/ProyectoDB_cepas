@@ -14,7 +14,7 @@
     document.getElementById('miBoton').addEventListener('click', async () => {
       try {
         // Opción A: Ruta relativa (misma raíz del dominio)
-        const res = await fetch('/almacenamiento/get-all', {
+        const res = await fetch('/cepas/get-all', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         });
