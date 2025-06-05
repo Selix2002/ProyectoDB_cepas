@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <title>Botón de prueba</title>
-  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <link href="../src/styles.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../src/styles.css" rel="stylesheet">
 </head>
 <body>
   <button id="miBoton">¡Hazme click!</button>
@@ -11,10 +13,18 @@
   <script>
     document.getElementById('miBoton').addEventListener('click', async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/almacenamiento/get-all', {
+        // Opción A: Ruta relativa (misma raíz del dominio)
+        const res = await fetch('/almacenamiento/get-all', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         });
+
+        // Opción B (equivalente): usar window.location.origin + ruta
+        // const res = await fetch(`${window.location.origin}/almacenamiento/get-all`, {
+        //   method: 'GET',
+        //   headers: { 'Content-Type': 'application/json' }
+        // });
+
         if (!res.ok) throw new Error(`Error ${res.status}`);
         const data = await res.json();
         document.getElementById('resultado').textContent = JSON.stringify(data, null, 2);
