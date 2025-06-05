@@ -122,37 +122,37 @@ export const cepasColumnDefs: ColDef[] = [
     filter: "agNumberColumnFilter",
   },
   {
-    headerName: "AMP (µg/ml)",
+    headerName: "AMP ",
     field: "resistencia_antibiotica.amp",
     filter: "agNumberColumnFilter",
   },
   {
-    headerName: "CTX (µg/ml)",
+    headerName: "CTX ",
     field: "resistencia_antibiotica.ctx",
     filter: "agNumberColumnFilter",
   },
   {
-    headerName: "CXM (µg/ml)",
+    headerName: "CXM ",
     field: "resistencia_antibiotica.cxm",
     filter: "agNumberColumnFilter",
   },
   {
-    headerName: "CAZ (µg/ml)",
+    headerName: "CAZ ",
     field: "resistencia_antibiotica.caz",
     filter: "agNumberColumnFilter",
   },
   {
-    headerName: "AK (µg/ml)",
+    headerName: "AK ",
     field: "resistencia_antibiotica.ak",
     filter: "agNumberColumnFilter",
   },
   {
-    headerName: "C (µg/ml)",
+    headerName: "C ",
     field: "resistencia_antibiotica.c",
     filter: "agTextColumnFilter",
   },
   {
-    headerName: "TE (µg/ml)",
+    headerName: "TE ",
     field: "resistencia_antibiotica.te",
     filter: "agTextColumnFilter",
   },
@@ -177,7 +177,7 @@ export const cepasColumnDefs: ColDef[] = [
     filter: "agTextColumnFilter",
   },
   {
-    headerName: "Responsable",
+    headerName: "Nicolas",
     field: "proyecto.responsable",
     filter: "agTextColumnFilter",
   },
