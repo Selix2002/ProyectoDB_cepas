@@ -1,38 +1,37 @@
-# load_data.py (ubicado en backend/temp/load_data.py)
+# backend/temp/load_data.py
 
 import sys
 import os
-
-# 1) CARPETA donde está load_data.py
-THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))    # /opt/render/project/src/backend/temp
-
-# 2) CARPETA “backend” real (dos niveles arriba de THIS_FILE_DIR)
-BACKEND_DIR = os.path.abspath(os.path.join(THIS_FILE_DIR, os.pardir))  # /opt/render/project/src/backend
-
-# 3) Ahora sí, agregamos BACKEND_DIR al PYTHONPATH
-sys.path.append(BACKEND_DIR)
-
-# — de aquí en adelante sigue tu lógica existente —
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# 4) LEEMOS DATABASE_URL
-raw_db_url = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
-)
+# 1) Directorio donde está este script:
+THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))  
+#    /opt/render/project/src/backend/temp
+
+# 2) Subir un nivel para llegar a /opt/render/project/src/backend
+BACKEND_DIR = os.path.abspath(os.path.join(THIS_FILE_DIR, os.pardir))  
+#    /opt/render/project/src/backend
+
+# 3) Agregar BACKEND_DIR al PYTHONPATH para poder hacer "from app.models import …"
+sys.path.append(BACKEND_DIR)
+
+# 4) Leer DATABASE_URL y forzar psycopg2 si hace falta
+raw_db_url = os.getenv("DATABASE_URL")
+if not raw_db_url:
+    raise RuntimeError("La variable de entorno DATABASE_URL no está definida")
 if raw_db_url.startswith("postgresql://"):
     db_url = raw_db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 else:
     db_url = raw_db_url
 
-# 5) CREAMOS ENGINE / SESSION
+# 5) Crear engine y Session
 engine = create_engine(db_url)
-Session = sessionmaker(bind=engine)
-session = Session()
+SessionLocal = sessionmaker(bind=engine)
+session = SessionLocal()
 
-# 6) IMPORTAMOS LOS MODELOS (AHORA FUNCIONARÁ)
+# 6) Importar los modelos desde app.models
 from app.models import (
     Cepa,
     Almacenamiento,
@@ -45,11 +44,16 @@ from app.models import (
     Proyecto,
 )
 
-# 7) EL RESTO DE TU CÓDIGO DE INSERCIÓN…
-csv_path = os.path.join(os.path.abspath(os.path.join(THIS_FILE_DIR, os.pardir, os.pardir)), "data", "cepas_16_4_25.csv")
+# 7) Construir la ruta al CSV dentro de backend/data/…
+csv_path = os.path.join(BACKEND_DIR, "data", "cepas_16_4_25.csv")
+if not os.path.exists(csv_path):
+    raise FileNotFoundError(f"No se encontró el CSV en: {csv_path}")
+
+# 8) Leer el CSV y rellenar valores nulos
 df = pd.read_csv(csv_path)
 df = df.fillna("N/I")
 
+# 9) Iterar sobre cada fila e insertar en la base
 for _, row in df.iterrows():
     cepa = Cepa(
         nombre=row["Cepa"],
@@ -59,7 +63,7 @@ for _, row in df.iterrows():
     )
     print(f"Procesando cepa: {cepa.nombre} ({cepa.cod_lab})")
     session.add(cepa)
-    session.flush()  # así tienes cepa.id
+    session.flush()  # para obtener cepa.id
 
     session.add(
         Almacenamiento(
@@ -93,7 +97,10 @@ for _, row in df.iterrows():
     )
     session.add(
         CrecimientoTemperatura(
-            temp_5=row["5 ºC"], temp_25=row["25 °C"], temp_37=row["37 °C"], cepa_id=cepa.id
+            temp_5=row["5 ºC"],
+            temp_25=row["25 °C"],
+            temp_37=row["37 °C"],
+            cepa_id=cepa.id,
         )
     )
     session.add(
@@ -117,7 +124,9 @@ for _, row in df.iterrows():
     )
     session.add(
         Proyecto(
-            responsable=row["Nicolás"], nombre_proyecto=row["Proyecto"], cepa_id=cepa.id
+            responsable=row["Nicolás"],
+            nombre_proyecto=row["Proyecto"],
+            cepa_id=cepa.id,
         )
     )
 
