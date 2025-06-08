@@ -3,10 +3,11 @@
 import { AgGridReact } from "ag-grid-react";
 import type { GridReadyEvent, CellValueChangedEvent } from "ag-grid-community";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import type { ColDef } from "ag-grid-community";
 import { useState, useEffect, useMemo } from "react";
-import { fetchCepasFull } from "../services/CepasQuery";
+import { fetchCepasFull,updateCepasJSONB_forTable } from "../services/CepasQuery";
 import { actualizarCepaPorCampo } from "../utils/cepaUpdate";
-import { cepasColumnDefs } from "./CepasColumns";
+import { getCepasColumnDefs } from "./CepasColumns";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -20,6 +21,8 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
   const [rowData, setRowData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
+
 
   const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
 
@@ -35,55 +38,121 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     fetchCepasFull()
       .then((data) => {
         setRowData(data);
-        setLoading(false);
+        setColumnDefs(getCepasColumnDefs(data));
       })
       .catch((err) => {
-        setError(err as Error);
+        console.error("Error al cargar cepas:", err);
+        setError(err);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
 
   // 2) Handler que dispara cuando el usuario termina de editar una celda
+
   const handleCellValueChanged = async (params: CellValueChangedEvent) => {
-    // 2.1) Si no hubo cambio real, no hacemos nada
+    // 1) Si no hubo cambio, salimos
     if (params.oldValue === params.newValue) return;
-
+  
     const updatedRow = params.data;
-    const changedField = params.colDef.field as string;
-    const newValue = params.newValue;
-
-    // 2.2) Si el usuario dejó la casilla vacía ("" o solo espacios), mostramos error y NO llamamos al backend
-    const texto = typeof newValue === "string" ? newValue.trim() : String(newValue).trim();
-    console.log(texto);
-    console.log(typeof texto);
-    if (texto == "" || texto == null || texto == "null") {
+    const field = params.colDef.field as string;
+    const rawValue = params.newValue;
+    const texto =
+      typeof rawValue === "string"
+        ? rawValue.trim()
+        : String(rawValue).trim();
+  
+    // 2) Validación de texto
+    if (!texto || texto.toLowerCase() === "null") {
       setNotification({
-        text: 'No se puede dejar la casilla vacía, si desea dejarla vacía, escribir "N/I"',
+        text:
+          'No se puede dejar la casilla vacía; si quieres vaciarla, escribe "N/I"',
         type: "error",
       });
-     
       setTimeout(() => setNotification(null), 3000);
-      return; // Salimos sin llamar a actualizarCepaPorCampo
+      return;
     }
-
+  
+    // 3) ¿Es JSONB? detectamos prefijo
+    const JSONB_PREFIX = "datos_extra.";
+    const isJSONBField = field.startsWith(JSONB_PREFIX);
+    // extraemos la clave real (ej: "EL XD")
+    const jsonKey = isJSONBField ? field.slice(JSONB_PREFIX.length) : "";
+  
     try {
-      // 2.3) Si pasa el chequeo, llamamos al util que arma el payload y hace el update
-      await actualizarCepaPorCampo(updatedRow.id, changedField, newValue);
-
-      setNotification({
-        text: "Cambios guardados con éxito!",
-        type: "success",
-      });
+      console.log("isJSONBField:", isJSONBField);
+      if (isJSONBField) {
+        // ————— Rama JSONB —————
+        // 3.1) Recolectar los datos_extra actuales de todas las filas
+        const existingDatosExtras = rowData.reduce<
+          Record<string, Record<string, any>>
+        >((acc, row) => {
+          acc[row.nombre] = row.datos_extra ?? {};
+          return acc;
+        }, {});
+  
+        // 3.2) Mergeamos sólo la clave modificada
+        const merged = {
+          ...existingDatosExtras[updatedRow.nombre],
+          [jsonKey]: texto,
+        };
+  
+        // 3.3) Console.log para inspeccionar payload
+        console.log("🛠️ JSONB PATCH >>", {
+          cepa: updatedRow.nombre,
+          datos_extra: merged,
+        });
+  
+        // 3.4) Enviamos al endpoint JSONB
+        await updateCepasJSONB_forTable(
+          { attribute_name: jsonKey, [updatedRow.nombre]: texto },
+          existingDatosExtras
+        );
+  
+        // 3.5) Reflejamos localmente
+        setRowData((rows) =>
+          rows.map((r) =>
+            r.nombre === updatedRow.nombre
+              ? { ...r, datos_extra: merged }
+              : r
+          )
+        );
+      } else {
+        // ————— Rama campo normal —————
+        const simplePayload = { [field]: texto };
+  
+        console.log("🔧 SIMPLE PATCH >>", {
+          id: updatedRow.id,
+          ...simplePayload,
+        });
+  
+        await actualizarCepaPorCampo(
+          updatedRow.id,
+          field,
+          texto
+        );
+  
+        // Actualizamos localmente ese campo
+        setRowData((rows) =>
+          rows.map((r) =>
+            r.id === updatedRow.id
+              ? { ...r, [field]: texto }
+              : r
+          )
+        );
+      }
+  
+      setNotification({ text: "Cambios guardados con éxito", type: "success" });
     } catch (err) {
-      console.error("Error al actualizar en backend:", err);
+      console.error("Error al actualizar:", err);
       setNotification({
         text: "Hubo un error al guardar los cambios",
         type: "error",
       });
+    } finally {
+      setTimeout(() => setNotification(null), 3000);
     }
-
-    // 2.4) Limpiar la notificación tras 3 segundos
-    setTimeout(() => setNotification(null), 3000);
   };
 
   if (loading) return <div>Cargando cepas...</div>;
@@ -110,7 +179,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
           style={{ width: "100%", minWidth: "1000px" }}
         >
           <AgGridReact
-            columnDefs={cepasColumnDefs}
+            columnDefs={columnDefs}
             rowData={rowData}
             onGridReady={onGridReady}
             onCellValueChanged={handleCellValueChanged}

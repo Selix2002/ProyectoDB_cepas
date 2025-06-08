@@ -2,7 +2,12 @@
 // src/components/cepasColumns.ts
 import type { ColDef } from "ag-grid-community";
 
-export const cepasColumnDefs: ColDef[] = [
+export const getCepasColumnDefs = (data: any[]): ColDef[] => {
+
+
+const fixedCols: ColDef[] = [
+
+
   {
     headerName: "ID",
     field: "id",
@@ -186,5 +191,26 @@ export const cepasColumnDefs: ColDef[] = [
     field: "proyecto.nombre_proyecto",
     filter: "agTextColumnFilter",
   },
-  // Si después agregas más columnas, las añades aquí
-];
+
+]
+
+const extraKeys = Array.from(
+  new Set(
+    data
+      .filter((c) => c.datos_extra)               // filtra solo cepas con datos_extra
+      .flatMap((c) => Object.keys(c.datos_extra!)) // todas las claves
+  )
+);
+
+  // 3. Generar una columna para cada clave
+  const extraCols: ColDef[] = extraKeys.map((key) => ({
+    headerName: key,
+    // usamos valueGetter para leer params.data.datos_extra[key]
+    valueGetter: (params) =>
+      params.data.datos_extra ? params.data.datos_extra[key] : null,
+    // si quieres edición inline:
+    editable: true,
+    field: `datos_extra.${key}`, // opcional, en caso de usar APIs de Ag-Grid que requieran field
+  }));
+  return [...fixedCols, ...extraCols];
+}

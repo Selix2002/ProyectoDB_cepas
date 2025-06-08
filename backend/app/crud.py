@@ -1,3 +1,4 @@
+import string
 from typing import Sequence,Any, Union
 from typing import Any
 from litestar import Controller, get, post, patch, delete
@@ -34,7 +35,8 @@ from app.dtos import (
     CepaReadDTO,
     CepaUpdateDTO,
     CepaCreateDTO,
-    CepaFullReadDTO
+    CepaFullReadDTO,
+    CepaUpdateJSONBDTO
 )
 from app.models import (
     Cepa,
@@ -143,5 +145,39 @@ class CepaController(Controller):
             auto_commit=True
             )
             return cepa
+        except NotFoundError:
+            raise HTTPException(status_code=404, detail="Cepa not found")
+
+    @patch("/update-jsonb/{cepa_name:str}", dto=CepaUpdateJSONBDTO)
+    async def update_jsonb(
+        self,
+        cepa_name: str,
+        data: DTOData[Cepa],
+        cepa_repo: CepaRepository = Provide(provide_cepa_repo),
+    ) -> Cepa:
+        try:
+            # 1) Extraer sólo el parche para datos_extra
+            patch_data = data.as_builtins().get("datos_extra", {})
+            
+            # 2) Obtener la cepa actual y su JSONB existente
+            cepa_actual = cepa_repo.get_and_update(  # o cepa_repo.get(...)
+                match_fields=["nombre"],
+                nombre=cepa_name,
+                auto_commit=False,  # sólo lectura por ahora
+            )[0]
+            existing_json = cepa_actual.datos_extra or {}
+
+            # 3) Fusionar los dos diccionarios (merge)
+            merged_json = {**existing_json, **patch_data}
+
+            # 4) Aplicar el update con el JSON combinado
+            updated_cepa, _ = cepa_repo.get_and_update(
+                match_fields=["nombre"],
+                nombre=cepa_name,
+                datos_extra=merged_json,
+                auto_commit=True,
+            )
+            return updated_cepa
+
         except NotFoundError:
             raise HTTPException(status_code=404, detail="Cepa not found")

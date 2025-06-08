@@ -44,3 +44,55 @@ export const updateCepa = (
       console.error(`Error al actualizar la cepa ${cepaId}:`, error);
       throw error;
     });
+
+/**
+ * Recorre el diccionario subido y, para cada cepa,
+ * lanza un PATCH al endpoint /cepas/update-jsonb/:cepaNombre
+ * insertando en su JSONB la nueva clave (attribute_name) con
+ * el valor correspondiente.
+ */
+export async function updateCepasJSONB(
+  fileDict: Record<string, string>
+): Promise<void> {
+  const { attribute_name: newKey, ...values } = fileDict;
+  if (!newKey) {
+    throw new Error("La clave `attribute_name` es obligatoria");
+  }
+
+  const requests = Object.entries(values).map(([cepaNombre, valor]) =>
+    axios.patch(
+      `/cepas/update-jsonb/${encodeURIComponent(cepaNombre)}`,
+      {
+        datos_extra: { [newKey]: valor },
+      }
+    )
+  );
+
+  await Promise.all(requests);
+}
+
+export async function updateCepasJSONB_forTable(
+  fileDict: Record<string, string>,
+  existingDatosExtras: Record<string, Record<string, any>>
+): Promise<void> {
+  const { attribute_name: newKey, ...values } = fileDict;
+  if (!newKey) {
+    throw new Error("La clave `attribute_name` es obligatoria");
+  }
+  console.log(fileDict);
+  const requests = Object.entries(values).map(([cepaNombre, valor]) => {
+    // 1) obtenemos el objeto actual (o uno vacío si no existe)
+    const current = existingDatosExtras[cepaNombre] ?? {};
+    // 2) mergeamos la nueva clave/valor
+    const mergedDatosExtra = { ...current, [newKey]: valor };
+
+    // 3) enviamos TODO el objeto merged
+    console.log("🔁 [updateCepasJSONB] payload:", { datos_extra: mergedDatosExtra });
+    return axios.patch(
+      `/cepas/update-jsonb/${encodeURIComponent(cepaNombre)}`,
+      { datos_extra: mergedDatosExtra }
+    );
+  });
+
+  await Promise.all(requests);
+}

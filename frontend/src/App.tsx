@@ -1,8 +1,6 @@
 // src/App.tsx
-import React from "react";
-import { HomePage } from "./pages/HomePage";
+import AppRouter from './routers/AppRouter';
 
 export default function App() {
-  return <HomePage />;
+  return <AppRouter />;
 }
-// 

@@ -6,6 +6,7 @@ import type { GridReadyCallback } from '../components/CepasTable'
 import type { GridApi, Column } from 'ag-grid-community'
 import { SlidersHorizontal, FlaskConical, MoreVertical } from 'lucide-react'
 import TableStats_col, { TableStats_row } from '../components/TableStats';
+import { Link } from 'react-router-dom'; 
 
 export function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -37,12 +38,17 @@ export function HomePage() {
       <div className="relative h-16 flex items-center justify-center border-b border-gray-700 px-4">
         {/* Contenedor de botones en la esquina superior izquierda */}
         <div className="absolute left-4 flex space-x-2">
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-            + Agregar Atributo
-          </button>
-          <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
-            + Añadir Cepa
-          </button>
+          <Link to="/addAtribute">
+            <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+              + Nuevo Atributo
+            </button>
+          </Link>
+         
+          <Link to="/addCepa">
+            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
+              + Nueva Cepa
+            </button>
+          </Link>
         </div>
 
         {/* Botón menú desplegable en esquina superior derecha */}

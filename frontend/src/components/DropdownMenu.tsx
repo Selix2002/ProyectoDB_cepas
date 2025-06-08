@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useReducer } from 'react';
+import { useRef, useEffect, useReducer } from 'react';
 import type { Column } from 'ag-grid-community';
 
 export interface DropdownMenuProps {
