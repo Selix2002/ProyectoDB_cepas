@@ -96,3 +96,15 @@ export async function updateCepasJSONB_forTable(
 
   await Promise.all(requests);
 }
+
+export async function createCepa(
+  data: Record<string, any>
+): Promise<any> {
+  return axios
+    .post("/cepas/create", data)
+    .then((res) => res.data)
+    .catch((error) => {
+      console.error("Error al crear la cepa:", error);
+      throw error;
+    });
+}

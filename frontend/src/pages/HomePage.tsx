@@ -1,36 +1,42 @@
 // src/pages/HomePage.tsx
-import { useState } from 'react'
-import DropdownMenu from '../components/DropdownMenu'
-import CepasTable from '../components/CepasTable'
-import type { GridReadyCallback } from '../components/CepasTable'
-import type { GridApi, Column } from 'ag-grid-community'
-import { SlidersHorizontal, FlaskConical, MoreVertical } from 'lucide-react'
-import TableStats_col, { TableStats_row } from '../components/TableStats';
-import { Link } from 'react-router-dom'; 
+import { useState } from "react";
+import DropdownMenu from "../components/DropdownMenu";
+import CepasTable from "../components/CepasTable";
+import type { GridReadyCallback } from "../components/CepasTable";
+import type { GridApi, Column } from "ag-grid-community";
+import { SlidersHorizontal, FlaskConical, MoreVertical } from "lucide-react";
+import TableStats_col, { TableStats_row } from "../components/TableStats";
+import { Link } from "react-router-dom";
+import { exportToExcel } from '../utils/exportExcel';
 
 export function HomePage() {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [columns, setColumns] = useState<Column[]>([])
-  const [gridApi, setGridApi] = useState<GridApi>()
-  const [rowCount_, setRowCount] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [columns, setColumns] = useState<Column[]>([]);
+  const [gridApi, setGridApi] = useState<GridApi>();
+  const [rowCount_, setRowCount] = useState(0);
 
-  // 1) Capturamos el GridApi y la lista inicial de Column[]  
-  const handleGridReady: GridReadyCallback = params => {
-    const api = params.api
-    setGridApi(api)
-    setColumns(api.getColumns() ?? [])
-    const rowCount = api.getDisplayedRowCount()
-    setRowCount(rowCount)
-  }
+  // 1) Capturamos el GridApi y la lista inicial de Column[]
+  const handleGridReady: GridReadyCallback = (params) => {
+    const api = params.api;
+    setGridApi(api);
+    setColumns(api.getColumns() ?? []);
+    const rowCount = api.getDisplayedRowCount();
+    setRowCount(rowCount);
+  };
+  const handleExport = () => {
+    console.log('Exportando a Excel: gridApi:', gridApi);
+    if (!gridApi) return;
+      exportToExcel(gridApi, 'Cepas', 'cepas.xlsx');
+};
 
   // 2) Al hacer toggle, llamamos a gridApi.setColumnsVisible(...) y luego
   //    volvemos a leer api.getColumns() para actualizar el estado de los checkboxes
   const handleToggle = (colId: string, visible: boolean) => {
-    if (!gridApi) return
+    if (!gridApi) return;
     // setColumnsVisible toma un array de IDs y el booleano deseado
-    gridApi.setColumnsVisible([colId], visible)
-    setColumns(gridApi.getColumns() ?? [])
-  }
+    gridApi.setColumnsVisible([colId], visible);
+    setColumns(gridApi.getColumns() ?? []);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
@@ -43,7 +49,7 @@ export function HomePage() {
               + Nuevo Atributo
             </button>
           </Link>
-         
+
           <Link to="/addCepa">
             <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
               + Nueva Cepa
@@ -52,12 +58,18 @@ export function HomePage() {
         </div>
 
         {/* Botón menú desplegable en esquina superior derecha */}
-        <button
-          className="absolute right-4 p-2 rounded hover:bg-gray-700"
-          onClick={() => setMenuOpen(v => !v)}
-        >
-          <MoreVertical className="h-6 w-6 text-white" />
-        </button>
+        {/* Botones en esquina superior derecha */}
+        <div className="absolute top-1/2 right-4 transform -translate-y-1/2 flex space-x-2">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" onClick={handleExport}>
+            Exportar
+          </button>
+          <button
+            className="p-2 rounded hover:bg-gray-700"
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <MoreVertical className="h-6 w-6 text-white" />
+          </button>
+        </div>
 
         <DropdownMenu
           isOpen={menuOpen}
@@ -71,7 +83,6 @@ export function HomePage() {
         </span>
       </div>
 
-      
       {/* Estadísticas */}
       <div className="p-15 flex flex-wrap items-center gap-4">
         {/* Atributos Definidos */}
@@ -83,10 +94,8 @@ export function HomePage() {
             <span className="text-sm font-semibold text-green-400 uppercase">
               Atributos definidos
             </span>
-              <TableStats_col colCount={columns.length}/>
-            <span className="text-sm text-gray-400">
-              Registrados
-            </span>
+            <TableStats_col colCount={columns.length} />
+            <span className="text-sm text-gray-400">Registrados</span>
           </div>
         </div>
 
@@ -99,10 +108,8 @@ export function HomePage() {
             <span className="text-sm font-semibold text-green-400 uppercase">
               Total cepas
             </span>
-            <TableStats_row rowCount={rowCount_}/>
-            <span className="text-sm text-gray-400">
-              Registradas
-            </span>
+            <TableStats_row rowCount={rowCount_} />
+            <span className="text-sm text-gray-400">Registradas</span>
           </div>
         </div>
       </div>
@@ -112,7 +119,7 @@ export function HomePage() {
         <CepasTable onGridReady={handleGridReady} />
       </div>
     </div>
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;

@@ -1,4 +1,3 @@
-
 interface ModalConfirmationProps {
   visible: boolean;
   data: Record<string, string>;
@@ -13,6 +12,11 @@ export default function ModalConfirmation({
   onCancel,
 }: ModalConfirmationProps) {
   if (!visible) return null;
+
+  // dentro de tu componente NewCepaPage
+  const name = data["Cepa"] || data["attribute_name"];
+  const isCepa = Boolean(data["Cepa"]);
+  const accion = isCepa ? "la nueva cepa" : "el atributo";
 
   return (
     <div className="fixed inset-0 text-black bg-black/50 flex items-center justify-center z-50">
@@ -39,9 +43,9 @@ export default function ModalConfirmation({
           </table>
         </div>
         <p className="mb-4 text-center">
-          ¿Está seguro que desea añadir el atributo{" "}
+        ¿Está seguro que desea añadir {accion}{" "}
           <span className="font-semibold">
-            "{data["attribute_name"]}"
+            "{name}"
           </span>{" "}
           a la base de datos?
         </p>
