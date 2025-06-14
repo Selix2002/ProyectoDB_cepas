@@ -25,7 +25,7 @@ csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "cep
 df = pd.read_csv(csv_path)
 df = df.fillna("N/I")
 # 2) Conecta a la base
-DATABASE_URL = "postgresql+psycopg2://sebas:qm94VVfbYzJIYGFUE3zTbWKheRJ6VujX@dpg-d166pu3uibrs73bdhgug-a/cepas_db_6wr0"
+DATABASE_URL = "postgresql+psycopg2://sebas:wXywIr6cusN6mTOBdEkhGqXqfyIvU93h@dpg-d16eph7diees73d29k80-a/cepas_db_pftg"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()
