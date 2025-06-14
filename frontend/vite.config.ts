@@ -1,31 +1,27 @@
-import { defineConfig} from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig(() => {
-  // 1) Carga las variables de entorno (incluye VITE_API_URL)
+export default defineConfig(({ mode }) => {
+  // 1) Carga todas las env vars en process.cwd()
+  const env = loadEnv(mode, process.cwd(), '')
 
-  // 2) Extrae la URL de tu API (por ejemplo "http://localhost:8000" o tu URL en Render)
-  const API_URL = "https://proyectodb-cepas-v14l.onrender.com"
+  // 2) Define la base de tu API: en dev usamos VITE_API_URL_DEV; en prod, VITE_API_URL
+  const API_URL = mode === 'production'
+    ? env.VITE_API_URL_PROD      // definida en Render: https://proyectodb-cepas-v14l.onrender.com
+    : env.VITE_API_URL_DEV  // local: http://localhost:8000
 
   return {
     plugins: [react(), tailwindcss()],
+    define: {
+      // 3) Reemplaza en el código todas las referencias a import.meta.env.API_URL por la cadena final
+      __API_URL__: JSON.stringify(API_URL),
+    },
     server: {
       proxy: {
-        // Proxyea todas las llamadas a /almacenamiento y /cepas
-        '/almacenamiento': {
-          target: API_URL,
-          changeOrigin: true,
-        },
-        '/cepas': {
-          target: API_URL,
-          changeOrigin: true,
-        },
+        '/almacenamiento': { target: API_URL, changeOrigin: true },
+        '/cepas':          { target: API_URL, changeOrigin: true },
       },
     },
-    // Opcional: si necesitas exponer más vars a tu cliente
-    define: {
-      'process.env': {}
-    }
   }
 })
