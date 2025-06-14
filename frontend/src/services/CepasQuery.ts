@@ -1,6 +1,6 @@
 // frontend/src/services/cepasQuery.ts
 
-import api from "./api";
+import {api} from "./api";
 import axios from "axios";
 
 /**
