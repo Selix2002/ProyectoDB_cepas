@@ -1,7 +1,7 @@
 // frontend/src/services/cepasQuery.ts
 
 import api from "./api";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 /**
  * Fetch de cepas con control de errores y validación de datos.
