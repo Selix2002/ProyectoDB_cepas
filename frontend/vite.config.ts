@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   // 2) Extrae la URL de tu API (por ejemplo "http://localhost:8000" o tu URL en Render)
-  const API_URL = env.VITE_API_URL_DEV
+  const API_URL = env.VITE_API_URL_PROD
 
   return {
     plugins: [react(), tailwindcss()],
