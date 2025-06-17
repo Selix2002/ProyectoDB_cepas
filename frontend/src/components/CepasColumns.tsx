@@ -99,57 +99,57 @@ const fixedCols: ColDef[] = [
   {
     headerName: "Celulasa",
     field: "actividad_enzimatica.celulasa",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "Fosfatasa",
     field: "actividad_enzimatica.fosfatasa",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "AIA",
     field: "actividad_enzimatica.aia",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "+ 5°C",
     field: "crecimiento_temperatura.temp_5",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "+ 25°C",
     field: "crecimiento_temperatura.temp_25",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "+ 37°C",
     field: "crecimiento_temperatura.temp_37",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "AMP",
     field: "resistencia_antibiotica.amp",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "CTX",
     field: "resistencia_antibiotica.ctx",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "CXM",
     field: "resistencia_antibiotica.cxm",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "CAZ",
     field: "resistencia_antibiotica.caz",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "AK",
     field: "resistencia_antibiotica.ak",
-    filter: "agNumberColumnFilter",
+    filter: "agTextColumnFilter",
   },
   {
     headerName: "C",
