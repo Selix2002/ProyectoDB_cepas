@@ -9,6 +9,14 @@ excludes_id = [
     "resistencia_antibiotica.id",
     "caracterizacion_genetica.id",
     "proyecto.id"
+    "almacenamiento.cepa_id",
+    "medio_cultivo.cepa_id",
+    "morfologia.cepa_id",
+    "actividad_enzimatica.cepa_id",
+    "crecimiento_temperatura.cepa_id",
+    "resistencia_antibiotica.cepa_id",
+    "caracterizacion_genetica.cepa_id",
+    "proyecto.cepa_id"
 ]
 excludes_tables = [
     "almacenamiento",
@@ -32,13 +40,16 @@ class CepaFullReadDTO(SQLAlchemyDTO[Cepa]):
 # DTOs para crear
 class CepaCreateDTO(SQLAlchemyDTO[Cepa]):
     config = SQLAlchemyDTOConfig(
-        exclude=["id","almacenamiento.id"],
+        exclude=["id"],
         partial=True,
     )
 
 # DTOs para actualizar
 class CepaUpdateDTO(SQLAlchemyDTO[Cepa]):
-    config = SQLAlchemyDTOConfig(exclude=excludes_id + ["id"], partial=True)
+    config = SQLAlchemyDTOConfig(
+        partial=True,
+        exclude=excludes_id + ["id"] 
+    )
 
 #DTO para actualizar el JSONB de cepa
 class CepaUpdateJSONBDTO(SQLAlchemyDTO[Cepa]):

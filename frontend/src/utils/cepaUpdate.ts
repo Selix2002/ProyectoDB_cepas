@@ -20,6 +20,7 @@ export async function actualizarCepaPorCampo(
   //    Podemos dejar esta parte en el componente si queremos que el util sea más genérico.
 
   // 2) Construir el payload (un objeto con el campo anidado)
+  console.log("🛠️ CEPAS UPDATE >> PRIMERO XD", id, fieldPath, newValue);
   const pathSegments = fieldPath.split(".");
   let payload: Record<string, any> = {};
 
@@ -36,7 +37,7 @@ export async function actualizarCepaPorCampo(
     }
     cursor[pathSegments[pathSegments.length - 1]] = newValue;
   }
-
+  
   // 3) Llamar al servicio que hace el PUT/POST a backend
   await updateCepa(id, payload);
 }
