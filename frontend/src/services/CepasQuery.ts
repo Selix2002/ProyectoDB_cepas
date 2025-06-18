@@ -1,34 +1,7 @@
+// frontend/src/services/cepasQuery.ts
+
+import {api} from "./api";
 import axios from "axios";
-
-/**
- * Fetch de cepas con control de errores y validación de datos.
- * @returns Promise<any[]>: array de cepas o array vacío si hay error o datos inválidos.
- */
-export const fetchCepasFull = (): Promise<any[]> =>
-  axios
-    .get("/cepas/get-all")
-    .then((res) => {
-      // Validamos que res.data sea un array
-      if (!res.data || !Array.isArray(res.data)) {
-        console.error("fetchCepasFull → datos inválidos:", res.data);
-        return [];
-      }
-      return res.data;
-    })
-    .catch((error) => {
-      // Errores de red, timeout, 5xx, etc.
-      if (axios.isAxiosError(error)) {
-        console.error(
-          `fetchCepasFull AxiosError [${error.response?.status}]:`,
-          error.message
-        );
-      } else {
-        console.error("fetchCepasFull Error inesperado:", error);
-      }
-      return [];
-    });
-
-    /**
 
 /**
  * Define aquí la forma exacta del payload que acepta el DTO de update en el backend.
@@ -100,14 +73,43 @@ export interface CepaUpdatePayload {
   };
 }
 
+
 /**
- * updateCepa: envía un PATCH a /cepas/update/{cepaId}
+ * Fetch de cepas con control de errores y validación de datos.
+ * @returns Promise<any[]>: array de cepas o array vacío si hay error o datos inválidos.
+ */
+export const fetchCepasFull = (): Promise<any[]> =>
+  api
+    .get("/cepas/get-all")
+    .then((res) => {
+      if (!res.data || !Array.isArray(res.data)) {
+        console.error("fetchCepasFull → datos inválidos:", res.data);
+        return [];
+      }
+      return res.data;
+    })
+    .catch((error) => {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          `fetchCepasFull AxiosError [${error.response?.status}]:`,
+          error.message
+        );
+      } else {
+        console.error("fetchCepasFull Error inesperado:", error);
+      }
+      return [];
+    });
+
+/**
+ * updateCepa: envía un PATCH a /cepas/update/{id}
+ * @param cepaId el ID de la cepa a actualizar
+ * @param data un objeto con los campos que cambiaron
  */
 export const updateCepa = (
   cepaId: number,
   data: CepaUpdatePayload
 ): Promise<any> =>
-  axios
+  api
     .patch(`/cepas/update/${cepaId}`, data)
     .then((res) => res.data)
     .catch((error) => {
@@ -115,14 +117,9 @@ export const updateCepa = (
       console.error(`Error al actualizar la cepa ${cepaId}:`, error);
       throw error;
     });
-    
-    
 
 /**
- * Recorre el diccionario subido y, para cada cepa,
- * lanza un PATCH al endpoint /cepas/update-jsonb/:cepaNombre
- * insertando en su JSONB la nueva clave (attribute_name) con
- * el valor correspondiente.
+ * Inserta una nueva clave/valor en el JSONB de cada cepa
  */
 export async function updateCepasJSONB(
   fileDict: Record<string, string>
@@ -133,17 +130,17 @@ export async function updateCepasJSONB(
   }
 
   const requests = Object.entries(values).map(([cepaNombre, valor]) =>
-    axios.patch(
+    api.patch(
       `/cepas/update-jsonb/${encodeURIComponent(cepaNombre)}`,
-      {
-        datos_extra: { [newKey]: valor },
-      }
+      { datos_extra: { [newKey]: valor } }
     )
   );
-
   await Promise.all(requests);
 }
 
+/**
+ * Variante que mergea con los datos_extra existentes (útil si trabajas con tabla editable)
+ */
 export async function updateCepasJSONB_forTable(
   fileDict: Record<string, string>,
   existingDatosExtras: Record<string, Record<string, any>>
@@ -153,15 +150,13 @@ export async function updateCepasJSONB_forTable(
     throw new Error("La clave `attribute_name` es obligatoria");
   }
   console.log(fileDict);
-  const requests = Object.entries(values).map(([cepaNombre, valor]) => {
-    // 1) obtenemos el objeto actual (o uno vacío si no existe)
-    const current = existingDatosExtras[cepaNombre] ?? {};
-    // 2) mergeamos la nueva clave/valor
-    const mergedDatosExtra = { ...current, [newKey]: valor };
 
-    // 3) enviamos TODO el objeto merged
+  const requests = Object.entries(values).map(([cepaNombre, valor]) => {
+    const current = existingDatosExtras[cepaNombre] ?? {};
+    const mergedDatosExtra = { ...current, [newKey]: valor };
     console.log("🔁 [updateCepasJSONB] payload:", { datos_extra: mergedDatosExtra });
-    return axios.patch(
+
+    return api.patch(
       `/cepas/update-jsonb/${encodeURIComponent(cepaNombre)}`,
       { datos_extra: mergedDatosExtra }
     );
@@ -170,10 +165,13 @@ export async function updateCepasJSONB_forTable(
   await Promise.all(requests);
 }
 
+/**
+ * Crea una nueva cepa vía POST /cepas/create
+ */
 export async function createCepa(
   data: Record<string, any>
 ): Promise<any> {
-  return axios
+  return api
     .post("/cepas/create", data)
     .then((res) => res.data)
     .catch((error) => {
