@@ -69,9 +69,6 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 .ag-theme-alpine.custom-space {
   --ag-background-color: #525252;
