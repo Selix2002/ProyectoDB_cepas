@@ -29,11 +29,11 @@ a:hover {
 body {
   margin: 0;
   display: block;
-  place-items: center;
-  min-width: 320px;
+  min-width: 100vh;
   min-height: 100vh;
   overflow-y: auto;
   height: 100%;
+  width:  100%;
 }
 
 h1 {

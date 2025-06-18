@@ -279,9 +279,14 @@ export default function NewCepaPage() {
     }
 
     // 5) Si datos_extra está vacío, lo quitamos
-    if (!Object.keys(payload.datos_extra).length) {
-      delete payload.datos_extra;
+    try{
+      if (!Object.keys(payload.datos_extra).length) {
+        delete payload.datos_extra;
+      }
+    }catch{
+      console.log("Data extra vacio");
     }
+
 
     // 6) Loguea el objeto final listo para subir
     console.log("Objeto final a subir a la DB:", payload);

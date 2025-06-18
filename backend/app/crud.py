@@ -1,7 +1,7 @@
 import string
 from typing import Sequence,Any, Union
 from typing import Any
-from litestar import Controller, get, post, patch, delete
+from litestar import Controller, get, post, patch, delete,Request
 from litestar.exceptions import HTTPException
 from advanced_alchemy.exceptions import NotFoundError
 from sqlalchemy import select
@@ -130,23 +130,46 @@ class CepaController(Controller):
         return [nueva]
         
     @patch("/update/{cepa_id:int}", dto=CepaUpdateDTO)  # UPDATE
-    async def update(self, cepa_id: int, data: DTOData[Cepa], cepa_repo: CepaRepository) -> Cepa:
+    async def update(self, cepa_id: int, data: DTOData[Cepa], cepa_repo: CepaRepository,request: Request,) -> Cepa:
         try:
-        # Extraer el diccionario con los campos que vienen en el DTO
-            valores = data.as_builtins()
-        # Evitar que 'id' venga dentro de los valores a actualizar
-            valores.pop("id", None)
-
-        # Ahora sí llamamos a get_and_update sin que haya colisión de 'id'
-            cepa, _ = cepa_repo.get_and_update(
-            match_fields=["id"],     # ó "id"
-            id=cepa_id,
-            **valores,
-            auto_commit=True
-            )
-            return cepa
+            # 1. Obtenemos la instancia de la Cepa que vamos a actualizar.
+            #    Usamos .get() en lugar de .get_and_update() por ahora.
+            cepa_a_actualizar = cepa_repo.get(cepa_id)
         except NotFoundError:
             raise HTTPException(status_code=404, detail="Cepa not found")
+
+        # 2. Obtener el diccionario directamente de la solicitud, NO del DTO.
+        update_data = await request.json()
+
+        # 3. Iteramos sobre los datos recibidos para actualizar el objeto Cepa y sus relaciones.
+        for key, value in update_data.items():
+            if isinstance(value, dict):
+                # Si el valor es un diccionario, es una relación anidada (ej. "almacenamiento").
+                related_obj = getattr(cepa_a_actualizar, key, None)
+                if related_obj:
+                    # Si el objeto relacionado existe (ej. cepa.almacenamiento no es None),
+                    # actualizamos sus atributos uno por uno.
+                    for     sub_key, sub_value in value.items():
+                        setattr(related_obj, sub_key, sub_value)
+            # else:
+                # Opcional: si la relación no existiera, aquí podrías crearla.
+                # Por ejemplo:
+                # from app.models import Almacenamiento
+                # nuevo_almacenamiento = Almacenamiento(**value)
+                # cepa_a_actualizar.almacenamiento = nuevo_almacenamiento
+            else:
+                print("XDDDDDDDDD",type(value))
+                # Si no es un diccionario, es un atributo simple de Cepa (ej. "nombre").
+                setattr(cepa_a_actualizar, key, value)
+
+    # 4. Añadimos el objeto modificado a la sesión y hacemos commit.
+    #    SQLAlchemy detectará los cambios y generará las sentencias UPDATE correctas.
+        cepa_repo.session.add(cepa_a_actualizar)
+        cepa_repo.session.commit()
+        cepa_repo.session.refresh(cepa_a_actualizar) # Refrescamos para obtener los datos actualizados de la DB.
+
+        return cepa_a_actualizar
+
 
     @patch("/update-jsonb/{cepa_name:str}", dto=CepaUpdateJSONBDTO)
     async def update_jsonb(
