@@ -327,7 +327,7 @@ export default function NewCepaPage() {
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <header className="flex items-center justify-between p-4 border-b border-gray-700">
         <div className="relative p-4">
-          <Link to="/">
+          <Link to="/home">
           <button
             className="bg-gray-200 hover:bg-gray-300 text-white font-semibold rounded"
           >

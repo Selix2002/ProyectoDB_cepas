@@ -44,13 +44,13 @@ export function HomePage() {
       <div className="relative h-16 flex items-center justify-center border-b border-gray-700 px-4">
         {/* Contenedor de botones en la esquina superior izquierda */}
         <div className="absolute left-4 flex space-x-2">
-          <Link to="/addAtribute">
+          <Link to="/home/addAtribute">
             <button>
               + Nuevo Atributo
             </button>
           </Link>
 
-          <Link to="/addCepa">
+          <Link to="/home/addCepa">
             <button>
               + Nueva Cepa
             </button>

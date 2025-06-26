@@ -10,8 +10,8 @@ export default function AppRouter() {
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/home" element={<HomePage />} />
-      <Route path="/addCepa" element={<NewCepaPage />} />
-      <Route path="/addAtribute" element={<NewAtributePage />} />
+      <Route path="/home/addCepa" element={<NewCepaPage />} />
+      <Route path="/home/addAtribute" element={<NewAtributePage />} />
     </Routes>
   );
 }

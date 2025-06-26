@@ -181,6 +181,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
           <AgGridReact
             columnDefs={columnDefs}
             rowData={rowData}
+            scrollbarWidth={16}
             onGridReady={onGridReady}
             onCellValueChanged={handleCellValueChanged}
             defaultColDef={{
