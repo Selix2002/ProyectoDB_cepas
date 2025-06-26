@@ -4,8 +4,11 @@ import { AgGridReact } from "ag-grid-react";
 import type { GridReadyEvent, CellValueChangedEvent } from "ag-grid-community";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
-import { useState, useEffect, useMemo } from "react";
-import { fetchCepasFull,updateCepasJSONB_forTable } from "../services/CepasQuery";
+import { useState, useEffect, useMemo, useRef } from "react";
+import {
+  fetchCepasFull,
+  updateCepasJSONB_forTable,
+} from "../services/CepasQuery";
 import { actualizarCepaPorCampo } from "../utils/cepaUpdate";
 import { getCepasColumnDefs } from "./CepasColumns";
 
@@ -22,7 +25,8 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
-
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [scrollPct, setScrollPct] = useState(0);
 
   const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
 
@@ -31,6 +35,26 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     text: string;
     type: "success" | "error";
   } | null>(null);
+
+  useEffect(() => {
+    // 1) Solo arrancamos cuando ya acabó el loading
+    if (loading) return;
+  
+    // 2) Protegemos el ref
+    const container = wrapperRef.current;
+    if (!container) return;
+  
+    // 3) Handler
+    const onScroll = () => {
+      const max = container.scrollWidth - container.clientWidth;
+      const pct = max > 0 ? (container.scrollLeft / max) * 100 : 0;
+      setScrollPct(pct);
+    };
+  
+    // 4) Añadimos y limpiamos
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => container.removeEventListener("scroll", onScroll);
+  }, [loading]);
 
   // 1) Carga inicial de datos
   useEffect(() => {
@@ -54,32 +78,29 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
   const handleCellValueChanged = async (params: CellValueChangedEvent) => {
     // 1) Si no hubo cambio, salimos
     if (params.oldValue === params.newValue) return;
-  
+
     const updatedRow = params.data;
     const field = params.colDef.field as string;
     const rawValue = params.newValue;
     const texto =
-      typeof rawValue === "string"
-        ? rawValue.trim()
-        : String(rawValue).trim();
-  
+      typeof rawValue === "string" ? rawValue.trim() : String(rawValue).trim();
+
     // 2) Validación de texto
     if (!texto || texto.toLowerCase() === "null") {
       setNotification({
-        text:
-          'No se puede dejar la casilla vacía; si quieres vaciarla, escribe "N/I"',
+        text: 'No se puede dejar la casilla vacía; si quieres vaciarla, escribe "N/I"',
         type: "error",
       });
       setTimeout(() => setNotification(null), 3000);
       return;
     }
-  
+
     // 3) ¿Es JSONB? detectamos prefijo
     const JSONB_PREFIX = "datos_extra.";
     const isJSONBField = field.startsWith(JSONB_PREFIX);
     // extraemos la clave real (ej: "EL XD")
     const jsonKey = isJSONBField ? field.slice(JSONB_PREFIX.length) : "";
-  
+
     try {
       console.log("isJSONBField:", isJSONBField);
       if (isJSONBField) {
@@ -91,58 +112,50 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
           acc[row.nombre] = row.datos_extra ?? {};
           return acc;
         }, {});
-  
+
         // 3.2) Mergeamos sólo la clave modificada
         const merged = {
           ...existingDatosExtras[updatedRow.nombre],
           [jsonKey]: texto,
         };
-  
+
         // 3.3) Console.log para inspeccionar payload
         console.log("🛠️ JSONB PATCH >>", {
           cepa: updatedRow.nombre,
           datos_extra: merged,
         });
-  
+
         // 3.4) Enviamos al endpoint JSONB
         await updateCepasJSONB_forTable(
           { attribute_name: jsonKey, [updatedRow.nombre]: texto },
           existingDatosExtras
         );
-  
+
         // 3.5) Reflejamos localmente
         setRowData((rows) =>
           rows.map((r) =>
-            r.nombre === updatedRow.nombre
-              ? { ...r, datos_extra: merged }
-              : r
+            r.nombre === updatedRow.nombre ? { ...r, datos_extra: merged } : r
           )
         );
       } else {
         // ————— Rama campo normal —————
         const simplePayload = { [field]: texto };
-  
+
         console.log("🔧 SIMPLE PATCH >>", {
           id: updatedRow.id,
           ...simplePayload,
         });
-  
-        await actualizarCepaPorCampo(
-          updatedRow.id,
-          field,
-          texto
-        );
-  
+
+        await actualizarCepaPorCampo(updatedRow.id, field, texto);
+
         // Actualizamos localmente ese campo
         setRowData((rows) =>
           rows.map((r) =>
-            r.id === updatedRow.id
-              ? { ...r, [field]: texto }
-              : r
+            r.id === updatedRow.id ? { ...r, [field]: texto } : r
           )
         );
       }
-  
+
       setNotification({ text: "Cambios guardados con éxito", type: "success" });
     } catch (err) {
       console.error("Error al actualizar:", err);
@@ -157,6 +170,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
 
   if (loading) return <div>Cargando cepas...</div>;
   if (error) return <div>Error al cargar datos: {error.message}</div>;
+
 
   return (
     <>
@@ -173,10 +187,15 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
         </div>
       )}
 
-      <div style={{ width: "100%", overflowX: "auto" }}>
+      {/* Contenedor con scroll horizontal y barra de progreso */}
+      <div
+        ref={wrapperRef}
+        className="relative overflow-x-auto"
+        style={{ width: "100%" }}
+      >
         <div
           className="ag-theme-alpine custom-space"
-          style={{ width: "100%", minWidth: "1000px" }}
+          style={{ minWidth: "1000px" }}
         >
           <AgGridReact
             columnDefs={columnDefs}
@@ -198,7 +217,17 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             domLayout="autoHeight"
           />
         </div>
+
+        {/* Track: fondo de la barra */}
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-700 pointer-events-none">
+          {/* Thumb: indicador de posición */}
+          <div
+            className="h-full bg-yellow-400 transition-[width] duration-100"
+            style={{ width: `${scrollPct}%` }}
+          />
+        </div>
       </div>
     </>
   );
 }
+
