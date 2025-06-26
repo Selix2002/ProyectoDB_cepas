@@ -25,8 +25,6 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const [scrollPct, setScrollPct] = useState(0);
 
   const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
 
@@ -36,25 +34,8 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     type: "success" | "error";
   } | null>(null);
 
-  useEffect(() => {
-    // 1) Solo arrancamos cuando ya acabó el loading
-    if (loading) return;
   
-    // 2) Protegemos el ref
-    const container = wrapperRef.current;
-    if (!container) return;
-  
-    // 3) Handler
-    const onScroll = () => {
-      const max = container.scrollWidth - container.clientWidth;
-      const pct = max > 0 ? (container.scrollLeft / max) * 100 : 0;
-      setScrollPct(pct);
-    };
-  
-    // 4) Añadimos y limpiamos
-    container.addEventListener("scroll", onScroll, { passive: true });
-    return () => container.removeEventListener("scroll", onScroll);
-  }, [loading]);
+
 
   // 1) Carga inicial de datos
   useEffect(() => {
@@ -189,13 +170,10 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
 
       {/* Contenedor con scroll horizontal y barra de progreso */}
       <div
-        ref={wrapperRef}
-        className="relative overflow-x-auto"
-        style={{ width: "100%" }}
+        className="relative"
       >
         <div
-          className="ag-theme-alpine custom-space"
-          style={{ minWidth: "1000px" }}
+          className="ag-theme-alpine"
         >
           <AgGridReact
             columnDefs={columnDefs}
@@ -217,16 +195,8 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             domLayout="autoHeight"
           />
         </div>
-
-        {/* Track: fondo de la barra */}
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-700 pointer-events-none">
-          {/* Thumb: indicador de posición */}
-          <div
-            className="h-full bg-yellow-400 transition-[width] duration-100"
-            style={{ width: `${scrollPct}%` }}
-          />
-        </div>
       </div>
     </>
   );
 }
+
