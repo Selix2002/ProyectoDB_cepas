@@ -29,10 +29,10 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
   const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
 
   // Estado para controlar la notificación (texto y tipo)
-  const [notification, setNotification] = useState<{
-    text: string;
-    type: "success" | "error";
-  } | null>(null);
+  //const [notification, setNotification] = useState<{
+    //text: string;
+    //type: "success" | "error";
+  //} | null>(null);
 
 
 
@@ -67,14 +67,14 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
       typeof rawValue === "string" ? rawValue.trim() : String(rawValue).trim();
 
     // 2) Validación de texto
-    if (!texto || texto.toLowerCase() === "null") {
+/*     if (!texto || texto.toLowerCase() === "null") {
       setNotification({
         text: 'No se puede dejar la casilla vacía; si quieres vaciarla, escribe "N/I"',
         type: "error",
       });
       setTimeout(() => setNotification(null), 3000);
       return;
-    }
+    } */
 
     // 3) ¿Es JSONB? detectamos prefijo
     const JSONB_PREFIX = "datos_extra.";
@@ -137,15 +137,20 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
         );
       }
 
-      setNotification({ text: "Cambios guardados con éxito", type: "success" });
-    } catch (err) {
-      console.error("Error al actualizar:", err);
+      //setNotification({ text: "Cambios guardados con éxito", type: "success" });
+    } 
+    catch (err) {
+      /* console.error("Error al actualizar:", err);
       setNotification({
         text: "Hubo un error al guardar los cambios",
         type: "error",
-      });
-    } finally {
-      setTimeout(() => setNotification(null), 3000);
+      }); */
+      console.error("Error al actualizar:", err);
+    } 
+    finally 
+    {
+      console.log("Actualización finalizada");
+      /* setTimeout(() => setNotification(null), 3000); */
     }
   };
 
@@ -154,42 +159,28 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
 
 
   return (
-    <>
-      {/* Notificación */}
-      {notification && (
-        <div
-          className={`mb-2 px-4 py-2 rounded text-center ${notification.type === "success"
-            ? "bg-blue-600 text-white"
-            : "bg-red-600 text-white"
-            }`}
-        >
-          {notification.text}
-        </div>
-      )}
-
-      {/* Contenedor con scroll horizontal y barra de progreso */}
-      <div>
-        <AgGridReact
-          columnDefs={columnDefs}
-          rowData={rowData}
-          scrollbarWidth={16}
-          onGridReady={onGridReady}
-          onCellValueChanged={handleCellValueChanged}
-          defaultColDef={{
-            minWidth: 100,
-            filter: true,
-            sortable: true,
-            editable: true,
-            resizable: true,
-            wrapHeaderText: true,
-          }}
-          pagination
-          paginationPageSize={10}
-          paginationPageSizeSelector={paginationPageSizeSelector}
-          domLayout="autoHeight"
-        />
-      </div>
-    </>
+    // Contenedor con scroll horizontal y barra de progreso
+    <div>
+      <AgGridReact
+        columnDefs={columnDefs}
+        rowData={rowData}
+        scrollbarWidth={16}
+        onGridReady={onGridReady}
+        onCellValueChanged={handleCellValueChanged}
+        defaultColDef={{
+          minWidth: 100,
+          filter: true,
+          sortable: true,
+          editable: true,
+          resizable: true,
+          wrapHeaderText: true,
+        }}
+        pagination
+        paginationPageSize={10}
+        paginationPageSizeSelector={paginationPageSizeSelector}
+        domLayout="autoHeight"
+      />
+    </div>
   );
 }
 
