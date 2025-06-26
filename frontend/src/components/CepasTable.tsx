@@ -4,7 +4,7 @@ import { AgGridReact } from "ag-grid-react";
 import type { GridReadyEvent, CellValueChangedEvent } from "ag-grid-community";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   fetchCepasFull,
   updateCepasJSONB_forTable,
