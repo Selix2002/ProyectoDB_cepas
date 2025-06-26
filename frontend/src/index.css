@@ -12,7 +12,13 @@
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 }
-
+@layer base {
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    background-color: #1a202c; /* Tailwind's bg-gray-900 */
+  }
+}
 
 button {
   border-radius: 8px;
