@@ -44,14 +44,14 @@ export function HomePage() {
       <div className="relative h-16 flex items-center justify-center border-b border-gray-700 px-4">
         {/* Contenedor de botones en la esquina superior izquierda */}
         <div className="absolute left-4 flex space-x-2">
-          <Link to="/addAtribute">
-            <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+          <Link to="/home/addAtribute">
+            <button>
               + Nuevo Atributo
             </button>
           </Link>
 
-          <Link to="/addCepa">
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
+          <Link to="/home/addCepa">
+            <button>
               + Nueva Cepa
             </button>
           </Link>
@@ -60,11 +60,10 @@ export function HomePage() {
         {/* Botón menú desplegable en esquina superior derecha */}
         {/* Botones en esquina superior derecha */}
         <div className="absolute top-1/2 right-4 transform -translate-y-1/2 flex space-x-2">
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" onClick={handleExport}>
+          <button onClick={handleExport}>
             Exportar
           </button>
           <button
-            className="p-2 rounded hover:bg-gray-700"
             onClick={() => setMenuOpen((v) => !v)}
           >
             <MoreVertical className="h-6 w-6 text-white" />

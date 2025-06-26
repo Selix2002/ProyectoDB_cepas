@@ -7,31 +7,12 @@
   line-height: 1.5;
   font-weight: 400;
   height: 100%;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #181a1b;
-  width: 100%;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
-
-body {
-  margin: 0;
-  display: block;
-  min-width: 100vh;
-  min-height: 100vh;
-  overflow-y: auto;
-  height: 100%;
-  width: 100%;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
 
 button {
   border-radius: 8px;
@@ -59,36 +40,18 @@ button:hover {
 .div-cepas{
   min-width: 18%;
 }
-/* ——————————————————————————————————————— */
-/* Forzar scroll horizontal visible en Safari/macOS */
-/* ——————————————————————————————————————— */
-@media not all and (min-resolution:.001dpcm) {
-  @supports (-webkit-appearance:none) {
 
-    /* 1) Anula la invisibilidad de AG-Grid */
-    .ag-scrollbar-invisible {
-      scrollbar-width: auto !important;             /* Firefox */
-    }
-    .ag-scrollbar-invisible::-webkit-scrollbar {    /* Chrome/Safari */
-      display: block !important;
-      height: 8px !important;
-    }
-
-    /* 2) Dale estilo al thumb (barra desplazable) */
-    .ag-body-horizontal-scroll::-webkit-scrollbar {
-      height: 8px;
-    }
-    .ag-body-horizontal-scroll::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.1);
-    }
-    .ag-body-horizontal-scroll::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.3);
-      border-radius: 4px;
-    }
-
-    /* 3) Habilita momentum scroll si quieres gestos suaves */
-    .ag-body-horizontal-scroll {
-      -webkit-overflow-scrolling: touch;
-    }
-  }
+.ag-body-viewport-wrapper.ag-layout-normal {
+  overflow-x: scroll;
+  overflow-y: scroll;
+}
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0,0,0,.5);
+  box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
