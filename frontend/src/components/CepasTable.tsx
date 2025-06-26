@@ -34,7 +34,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     type: "success" | "error";
   } | null>(null);
 
-  
+
 
 
   // 1) Carga inicial de datos
@@ -158,43 +158,36 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
       {/* Notificación */}
       {notification && (
         <div
-          className={`mb-2 px-4 py-2 rounded text-center ${
-            notification.type === "success"
-              ? "bg-blue-600 text-white"
-              : "bg-red-600 text-white"
-          }`}
+          className={`mb-2 px-4 py-2 rounded text-center ${notification.type === "success"
+            ? "bg-blue-600 text-white"
+            : "bg-red-600 text-white"
+            }`}
         >
           {notification.text}
         </div>
       )}
 
       {/* Contenedor con scroll horizontal y barra de progreso */}
-      <div
-        className="relative"
-      >
-        <div
-          className="ag-theme-alpine"
-        >
-          <AgGridReact
-            columnDefs={columnDefs}
-            rowData={rowData}
-            scrollbarWidth={16}
-            onGridReady={onGridReady}
-            onCellValueChanged={handleCellValueChanged}
-            defaultColDef={{
-              minWidth: 100,
-              filter: true,
-              sortable: true,
-              editable: true,
-              resizable: true,
-              wrapHeaderText: true,
-            }}
-            pagination
-            paginationPageSize={10}
-            paginationPageSizeSelector={paginationPageSizeSelector}
-            domLayout="autoHeight"
-          />
-        </div>
+      <div>
+        <AgGridReact
+          columnDefs={columnDefs}
+          rowData={rowData}
+          scrollbarWidth={16}
+          onGridReady={onGridReady}
+          onCellValueChanged={handleCellValueChanged}
+          defaultColDef={{
+            minWidth: 100,
+            filter: true,
+            sortable: true,
+            editable: true,
+            resizable: true,
+            wrapHeaderText: true,
+          }}
+          pagination
+          paginationPageSize={10}
+          paginationPageSizeSelector={paginationPageSizeSelector}
+          domLayout="autoHeight"
+        />
       </div>
     </>
   );
