@@ -170,7 +170,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
 
       {/* Contenedor con scroll horizontal y barra de progreso */}
       <div
-        className="relative"
+        className="relative h-full"
       >
         <div
           className="ag-theme-alpine custom-space" 
