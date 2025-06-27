@@ -39,9 +39,9 @@ export function HomePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+    <div className="flex flex-col h-full min-h-screen bg-gray-900 text-white">
       {/* Cabecera */}
-      <div className="relative h-16 flex items-center justify-center border-b border-gray-700 px-4">
+      <div className="relative h-16 flex items-center mt-8 justify-center border-b border-gray-700 px-4">
         {/* Contenedor de botones en la esquina superior izquierda */}
         <div className="absolute left-4 flex space-x-2">
           <Link to="/home/addAtribute">

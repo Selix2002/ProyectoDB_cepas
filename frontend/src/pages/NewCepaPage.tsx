@@ -326,29 +326,21 @@ export default function NewCepaPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <header className="flex items-center justify-between p-4 border-b border-gray-700">
-        <div className="relative p-4">
+        <div>
           <Link to="/home">
-          <button
-            className="bg-gray-200 hover:bg-gray-300 text-white font-semibold rounded"
-          >
+          <button>
             Volver
           </button>
           </Link>
-          {/* ... aquí va el resto del contenido de tu página ... */}
         </div>
 
         <h1 className="text-2xl font-bold">Agregar Nueva Cepa</h1>
         <div className="space-x-2">
-          <button
-            onClick={handleDownloadTemplate}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
+          <button onClick={handleDownloadTemplate}>
             Descargar Plantilla
           </button>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded"
-          >
+
+          <button onClick={() => fileInputRef.current?.click()}>
             Subir Archivo
           </button>
           <input
@@ -358,6 +350,7 @@ export default function NewCepaPage() {
             className="hidden"
             onChange={handleFileUpload}
           />
+          
         </div>
       </header>
 

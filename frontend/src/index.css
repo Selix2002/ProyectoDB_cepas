@@ -6,13 +6,19 @@
   font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  height: 100%;
+  height: auto;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 }
-
+@layer base {
+  html, body, #root {
+    height: auto;
+    margin: 0;
+    background-color: #1a202c; /* Tailwind's bg-gray-900 */
+  }
+}
 
 button {
   border-radius: 8px;
@@ -24,6 +30,7 @@ button {
   background-color: #00c950;
   cursor: pointer;
   transition: background-color 0.5s;
+  margin-bottom: 17%;
 }
 button:hover {
   background-color: #000000;
