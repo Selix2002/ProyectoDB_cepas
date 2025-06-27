@@ -173,7 +173,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
         className="relative h-full"
       >
         <div
-          className="ag-theme-alpine custom-space" 
+          className="ag-theme-alpine custom-space h-full" 
         >
           <AgGridReact
             columnDefs={columnDefs}
