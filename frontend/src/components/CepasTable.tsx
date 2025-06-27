@@ -158,7 +158,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
       {/* Notificación */}
       {notification && (
         <div
-          className={`mb-2 px-4 py-2 rounded text-center ${
+          className={`px-4 py-2 rounded text-center ${
             notification.type === "success"
               ? "bg-blue-600 text-white"
               : "bg-red-600 text-white"
