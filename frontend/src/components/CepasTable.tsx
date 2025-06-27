@@ -192,7 +192,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             pagination
             paginationPageSize={10}
             paginationPageSizeSelector={paginationPageSizeSelector}
-            domLayout="normal"
+            domLayout="autoHeight"
           />
         </div>
       </div>
