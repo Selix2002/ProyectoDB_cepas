@@ -114,7 +114,7 @@ export function HomePage() {
       </div>
 
       {/* Tabla de Cepas */}
-      <div className="flex-1 border-t border-gray-700 p-4 box-border">
+      <div>
         <CepasTable onGridReady={handleGridReady} />
       </div>
     </div>
