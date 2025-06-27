@@ -324,7 +324,7 @@ export default function NewCepaPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+    <div>
       <header className="flex items-center justify-between p-4 border-b border-gray-700">
         <div className="relative p-4">
           <Link to="/home">
@@ -334,7 +334,6 @@ export default function NewCepaPage() {
             Volver
           </button>
           </Link>
-          {/* ... aquí va el resto del contenido de tu página ... */}
         </div>
 
         <h1 className="text-2xl font-bold">Agregar Nueva Cepa</h1>
