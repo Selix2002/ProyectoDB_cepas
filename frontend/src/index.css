@@ -36,10 +36,6 @@ button:hover {
 
 }
 .ag-theme-alpine.custom-space {
-  --ag-background-color: #525252;
-  --ag-foreground-color: #ffffff;
-  --ag-header-background-color: #000000;
-  --ag-header-foreground-color: #ffffff;
   --ag-font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial,
     sans-serif;
 }
