@@ -324,7 +324,7 @@ export default function NewCepaPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+    <div className="flex flex-col h-screen bg-gray-900 text-white">
       <header className="flex items-center justify-between p-4 border-b border-gray-700">
         <div>
           <Link to="/home">
@@ -354,7 +354,7 @@ export default function NewCepaPage() {
         </div>
       </header>
 
-      <main className="flex-grow p-6">
+      <main className="flex-grow p-6 overflow-y-auto">
         <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto">
           {columns
             .filter(

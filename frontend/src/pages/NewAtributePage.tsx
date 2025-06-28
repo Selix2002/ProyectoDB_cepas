@@ -124,7 +124,7 @@ export default function NewAttributePage() {
       {/* Header fijo con botón de volver */}
       <header className="fixed top-0 left-0 w-full bg-[#213547] p-8 z-10">
         <div className="absolute top-4 left-4">
-          <Link to="/">
+          <Link to="/home">
             <button className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded">
               ← Volver
             </button>

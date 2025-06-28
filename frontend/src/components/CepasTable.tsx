@@ -158,7 +158,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
       {/* Notificación */}
       {notification && (
         <div
-          className={`mb-2 px-4 py-2 rounded text-center ${
+          className={`absolute top-4 left-1/2 -translate-x-1/2 z-10 mb-2 px-4 py-2 rounded text-center ${
             notification.type === "success"
               ? "bg-blue-600 text-white"
               : "bg-red-600 text-white"
@@ -170,10 +170,10 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
 
       {/* Contenedor con scroll horizontal y barra de progreso */}
       <div
-        className="relative"
+        className="relative h-full"
       >
         <div
-          className="ag-theme-alpine custom-space" 
+          className="ag-theme-alpine custom-space h-full" 
         >
           <AgGridReact
             columnDefs={columnDefs}
@@ -192,11 +192,10 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             pagination
             paginationPageSize={10}
             paginationPageSizeSelector={paginationPageSizeSelector}
-            domLayout="autoHeight"
+            domLayout="normal"
           />
         </div>
       </div>
     </>
   );
 }
-

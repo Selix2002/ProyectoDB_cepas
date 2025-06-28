@@ -6,7 +6,7 @@
   font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  height: auto;
+  height: 100%;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: auto;
@@ -14,7 +14,7 @@
 }
 @layer base {
   html, body, #root {
-    height: auto;
+    height: 100%;
     margin: 0;
     background-color: #1a202c; /* Tailwind's bg-gray-900 */
   }
@@ -30,17 +30,12 @@ button {
   background-color: #00c950;
   cursor: pointer;
   transition: background-color 0.5s;
-  margin-bottom: 17%;
 }
 button:hover {
   background-color: #000000;
 
 }
 .ag-theme-alpine.custom-space {
-  --ag-background-color: #525252;
-  --ag-foreground-color: #ffffff;
-  --ag-header-background-color: #000000;
-  --ag-header-foreground-color: #ffffff;
   --ag-font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial,
     sans-serif;
 }
