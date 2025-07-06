@@ -9,6 +9,15 @@ class Base(DeclarativeBase):
     """Clase base para todos los modelos, usando el nuevo estilo DeclarativeBase."""
     pass
 
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(String, nullable=False)
+    is_admin: Mapped[bool] = mapped_column(default=True)
+
+    #Relaciones uno-a-muchos con Cepa
 
 class Cepa(Base):
     __tablename__ = "cepas"
@@ -19,8 +28,7 @@ class Cepa(Base):
     pigmentacion: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     origen: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     datos_extra: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
-
-    # Relaciones uno-a-uno (uselist=False) con los demás modelos
+    
     almacenamiento: Mapped[Optional["Almacenamiento"]] = relationship(
         back_populates="cepa",uselist=False
     )

@@ -1,5 +1,5 @@
 from litestar.plugins.sqlalchemy import SQLAlchemyDTO, SQLAlchemyDTOConfig
-from app.models import Cepa, Almacenamiento, MedioCultivo, Morfologia, ActividadEnzimatica, CrecimientoTemperatura, ResistenciaAntibiotica, CaracterizacionGenetica, Proyecto
+from app.models import Cepa, User
 excludes_id = [
     "almacenamiento.id",
     "medio_cultivo.id",
@@ -8,7 +8,7 @@ excludes_id = [
     "crecimiento_temperatura.id",
     "resistencia_antibiotica.id",
     "caracterizacion_genetica.id",
-    "proyecto.id"
+    "proyecto.id",
     "almacenamiento.cepa_id",
     "medio_cultivo.cepa_id",
     "morfologia.cepa_id",
@@ -16,7 +16,7 @@ excludes_id = [
     "crecimiento_temperatura.cepa_id",
     "resistencia_antibiotica.cepa_id",
     "caracterizacion_genetica.cepa_id",
-    "proyecto.cepa_id"
+    "proyecto.cepa_id",
 ]
 excludes_tables = [
     "almacenamiento",
@@ -55,5 +55,22 @@ class CepaUpdateDTO(SQLAlchemyDTO[Cepa]):
 class CepaUpdateJSONBDTO(SQLAlchemyDTO[Cepa]):
     config = SQLAlchemyDTOConfig(exclude=excludes_tables + ["id","nombre","cod_lab","pigmentacion","origen"], partial=True)
 
+# DTO para User
+class UserCreateDTO(SQLAlchemyDTO[User]):
+    config = SQLAlchemyDTOConfig(
+        exclude=["id"],
+        partial=True,
+    )
+class UserReadDTO(SQLAlchemyDTO[User]):
+    config = SQLAlchemyDTOConfig(
+        exclude=["password"],
+    )
+class UserUpdateDTO(SQLAlchemyDTO[User]):
+    config = SQLAlchemyDTOConfig(
+        partial=True,
+        exclude=["id"]
+    )
+class UserLoginDTO(SQLAlchemyDTO[User]):
+    config = SQLAlchemyDTOConfig(include={"username", "password"})
 
     

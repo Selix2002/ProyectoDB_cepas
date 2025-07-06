@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      "/almacenamiento": {
+      "/users": {
         target: target,
         changeOrigin: true,
       },

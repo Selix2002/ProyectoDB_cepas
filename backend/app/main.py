@@ -1,14 +1,18 @@
 # backend/app/main.py
 from pathlib import Path
-from litestar import Litestar, get
-from litestar.static_files import create_static_files_router
+from litestar import Litestar
 from litestar.config.cors import CORSConfig
-from litestar.plugins.sqlalchemy import SQLAlchemyPlugin, SQLAlchemySyncConfig
+from litestar.plugins.sqlalchemy import SQLAlchemyPlugin
 from litestar.openapi.config import OpenAPIConfig
 from litestar.openapi.plugins import ScalarRenderPlugin
-from app.models import Base
+
+from app.security import oauth2_auth
+from app.db import db_config
+from app.config import settings
 from app.crud import (
-    CepaController
+    CepaController,
+    UserController,
+    AuthController,
 )
 # 1. Configuración CORS
 cors = CORSConfig(
@@ -18,37 +22,24 @@ cors = CORSConfig(
     allow_credentials=True,
 )
 
-# 2. Plugin de SQLAlchemy (si lo usas)
-db_config = SQLAlchemySyncConfig(
-    connection_string="postgresql+psycopg2://postgres:sebas@localhost/db_cepas",
-    create_all=True,
-    metadata=Base.metadata,
-)
+# 2. Configuración de la base de datos y OpenAPI
 sql_plugin = SQLAlchemyPlugin(config=db_config)
-
-static_router = create_static_files_router(
-    path="/inicio",
-    directories=[
-        Path(__file__).resolve().parent.parent.parent
-        / "frontend"
-        / "public"
-    ],
-    html_mode=True,  # al hacer GET /inicio sirve index.html automáticamente :contentReference[oaicite:1]{index=1}
+openapi_config = OpenAPIConfig(
+    title="Backend Cepas",
+    description="API para la gestión de cepas",
+    version="1.0.0",
+    root_schema_site="scalar",  # para usar ScalarRenderPlugin
+    render_plugins=[ScalarRenderPlugin()],  # para usar ScalarRenderPlugin
 )
 
 # 3. Instancia de Litestar
 app = Litestar(
-    route_handlers=[static_router,CepaController],  # lista tus controllers o funciones route
-    openapi_config=OpenAPIConfig(
-        title="Backend Cepas",
-        description="API para la gestión de cepas",
-        version="1.0.0",
-        root_schema_site="scalar",              # Usa Swagger UI como página raíz
-        render_plugins=[ScalarRenderPlugin()],  # Solo carga el plugin de Swagger
-    ),
-    plugins=[sql_plugin],              # si no usas plugins, puedes omitir
+    route_handlers=[CepaController,UserController,AuthController],  # lista tus controllers o funciones route
+    openapi_config=openapi_config,  # configuración de OpenAPI
+    on_app_init=[oauth2_auth.on_app_init],  # inicializa el OAuth2 al arrancar la app
+    plugins=[sql_plugin],              
     cors_config=cors,
-    debug=True,
+    debug=settings.debug,
 )
 
 
@@ -60,5 +51,5 @@ if __name__ == "__main__":
         host="0.0.0.0",         # opcional
         port=8000,              # por defecto 8000
         reload=True,            # autoreload en desarrollo
-        app_dir="backend",      # <--- MUY IMPORTANTE
+        app_dir="backend",      # directorio de la app
     )

@@ -1,55 +1,48 @@
-import string
-from typing import Sequence,Any, Union
+from typing import Annotated, Sequence,Any, Union
 from typing import Any
-from litestar import Controller, get, post, patch, delete,Request
+from litestar import Controller, Response, get, post, patch,Request
 from litestar.exceptions import HTTPException
 from advanced_alchemy.exceptions import NotFoundError
-from sqlalchemy import select
-from sqlalchemy.orm import DeclarativeMeta
 from litestar.dto import DTOData
 from litestar.di import Provide
+from litestar.contrib.jwt import OAuth2Login, Token
 from litestar import get, Request
+from litestar.connection import ASGIConnection
+from litestar.handlers import BaseRouteHandler
+from litestar.params import Body
+from litestar.enums import RequestEncodingType
+
+
+
 from app.repositories import (
     CepaRepository,
-    AlmacenamientoRepository,
-    MedioCultivoRepository,
-    MorfologiaRepository,
-    ActividadEnzimaticaRepository,
-    CrecimientoTemperaturaRepository,
-    ResistenciaAntibioticaRepository,
-    CaracterizacionGeneticaRepository,
-    ProyectoRepository,
     provide_cepa_repo,
-    provide_actividad_enzimatica_repo,
-    provide_almacenamiento_repo,
-    provide_caracterizacion_genetica_repo,
-    provide_crecimiento_temperatura_repo,
-    provide_medio_cultivo_repo,
-    provide_morfologia_repo,
-    provide_proyecto_repo,
-    provide_resistencia_antibiotica_repo
+    UserRepository,
+    provide_user_repo,
 )
 from app.dtos import (
-
-
     CepaReadDTO,
     CepaUpdateDTO,
     CepaCreateDTO,
-    CepaFullReadDTO,
-    CepaUpdateJSONBDTO
+    CepaUpdateJSONBDTO,
+    UserCreateDTO,
+    UserReadDTO,
+    UserUpdateDTO,
+    UserLoginDTO,
 )
 from app.models import (
     Cepa,
-    Almacenamiento,
-    MedioCultivo,
-    Morfologia,
-    ActividadEnzimatica,
-    CrecimientoTemperatura,
-    ResistenciaAntibiotica,
-    CaracterizacionGenetica,
-    Proyecto
+    User,
 )
+from .security import oauth2_auth
 
+def admin_user_guard(connection: ASGIConnection, _: BaseRouteHandler) -> None:
+    if not connection.user.is_admin:
+        pass
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized.",
+        )
 
 class CepaController(Controller):
     path = "/cepas"
@@ -61,9 +54,10 @@ class CepaController(Controller):
     @get("/get-all")
     async def get_all(self, cepa_repo: CepaRepository = Provide(provide_cepa_repo)) -> list[dict[str, Any]]:
         # 1) Recupero todas las Cepa
+            # Intentamos obtener todas las cepas
+        print("DEBUG: Llamada a cepa_repo.list()")
         cepas: Sequence[Cepa] = cepa_repo.list()
-
-        # 2) Función recursiva para filtrar columnas "*id" y relaciones "cepa"
+        print(f"DEBUG: Se encontraron {len(cepas)} cepas")
         def filter_ids(obj: Any) -> Union[dict[str, Any], list, Any]:
             # Si es lista, aplico recursividad a cada elemento
             if isinstance(obj, list):
@@ -158,7 +152,6 @@ class CepaController(Controller):
                 # nuevo_almacenamiento = Almacenamiento(**value)
                 # cepa_a_actualizar.almacenamiento = nuevo_almacenamiento
             else:
-                print("XDDDDDDDDD",type(value))
                 # Si no es un diccionario, es un atributo simple de Cepa (ej. "nombre").
                 setattr(cepa_a_actualizar, key, value)
 
@@ -170,8 +163,7 @@ class CepaController(Controller):
 
         return cepa_a_actualizar
 
-
-    @patch("/update-jsonb/{cepa_name:str}", dto=CepaUpdateJSONBDTO)
+    @patch("/update-jsonb/{cepa_name:str}", dto=CepaUpdateJSONBDTO) #UPDATE JSONB
     async def update_jsonb(
         self,
         cepa_name: str,
@@ -204,3 +196,54 @@ class CepaController(Controller):
 
         except NotFoundError:
             raise HTTPException(status_code=404, detail="Cepa not found")
+        
+class UserController(Controller):
+    path = "/users"
+    tags = ["User"]
+    dto = UserReadDTO
+    dependencies = {
+        "user_repo": Provide(provide_user_repo),
+    }
+
+    @get("/get-all")
+    async def get_all_users(self, user_repo: UserRepository) -> list[User]:
+        return user_repo.list()
+        
+    @get("/me")
+    async def get_my_user(self, request: "Request[User, Token, Any]") -> User:
+        return request.user
+    
+    @post("/create", dto=UserCreateDTO)  # CREATE
+    async def create_user(self, user_repo: UserRepository, data: User) -> User:
+        return user_repo.add_with_password_hash(data, auto_commit=True)
+    
+    @patch("/{user_id:int}", dto=UserUpdateDTO, guards=[admin_user_guard])
+    async def update_user(
+        self, users_repo: UserRepository, user_id: int, data: DTOData[User]
+    ) -> User:
+        user, _ = users_repo.get_and_update(
+            match_fields="id", id=user_id, **data.as_builtins(), auto_commit=True
+        )
+        return user
+    
+class AuthController(Controller):
+    path = "/auth"
+    tags = ["auth"]
+
+    @post(
+        "/login",
+        dto=UserLoginDTO,
+        dependencies={"users_repo": Provide(provide_user_repo)},
+    )
+    async def login(
+        self,
+        data: Annotated[User, Body(media_type=RequestEncodingType.URL_ENCODED)],
+        users_repo: UserRepository,
+    ) -> Response[OAuth2Login]:
+        user = users_repo.get_one_or_none(username=data.username)
+
+        if user is None or not users_repo.check_password(data.username, data.password):
+            print(f"DEBUG: Intento de inicio de sesión fallido para el usuario '{data.username}' con contraseña '{data.password}'")
+            raise HTTPException(status_code=401, detail="Usuario o contraseña incorrecta")
+
+        return oauth2_auth.login(identifier=user.username)

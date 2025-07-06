@@ -1,40 +1,44 @@
 from advanced_alchemy.repository import SQLAlchemySyncRepository
 from sqlalchemy.orm import Session
 from app.models import Cepa, Almacenamiento, MedioCultivo, Morfologia, ActividadEnzimatica, CrecimientoTemperatura, ResistenciaAntibiotica, CaracterizacionGenetica, Proyecto
+from app.models import User
+from pwdlib import PasswordHash
+
+password_hasher = PasswordHash.recommended()
+
 
 class CepaRepository(SQLAlchemySyncRepository[Cepa]):
     model_type = Cepa
 async def provide_cepa_repo(db_session: Session) -> CepaRepository:
     return CepaRepository(session=db_session)
-class AlmacenamientoRepository(SQLAlchemySyncRepository[Almacenamiento]):
-    model_type = Almacenamiento
-async def provide_almacenamiento_repo(db_session: Session) -> AlmacenamientoRepository:
-    return AlmacenamientoRepository(session=db_session)
-class MedioCultivoRepository(SQLAlchemySyncRepository[MedioCultivo]):
-    model_type = MedioCultivo
-async def provide_medio_cultivo_repo(db_session: Session) -> MedioCultivoRepository:
-    return MedioCultivoRepository(session=db_session)
-class MorfologiaRepository(SQLAlchemySyncRepository[Morfologia]):
-    model_type = Morfologia
-async def provide_morfologia_repo(db_session: Session) -> MorfologiaRepository:
-    return MorfologiaRepository(session=db_session)
-class ActividadEnzimaticaRepository(SQLAlchemySyncRepository[ActividadEnzimatica]):
-    model_type = ActividadEnzimatica
-async def provide_actividad_enzimatica_repo(db_session: Session) -> ActividadEnzimaticaRepository:
-    return ActividadEnzimaticaRepository(session=db_session)
-class CrecimientoTemperaturaRepository(SQLAlchemySyncRepository[CrecimientoTemperatura]):
-    model_type = CrecimientoTemperatura
-async def provide_crecimiento_temperatura_repo(db_session: Session) -> CrecimientoTemperaturaRepository:
-    return CrecimientoTemperaturaRepository(session=db_session)
-class ResistenciaAntibioticaRepository(SQLAlchemySyncRepository[ResistenciaAntibiotica]):
-    model_type = ResistenciaAntibiotica
-async def provide_resistencia_antibiotica_repo(db_session: Session) -> ResistenciaAntibioticaRepository:
-    return ResistenciaAntibioticaRepository(session=db_session)
-class CaracterizacionGeneticaRepository(SQLAlchemySyncRepository[CaracterizacionGenetica]):
-    model_type = CaracterizacionGenetica
-async def provide_caracterizacion_genetica_repo(db_session: Session) -> CaracterizacionGeneticaRepository:
-    return CaracterizacionGeneticaRepository(session=db_session)
-class ProyectoRepository(SQLAlchemySyncRepository[Proyecto]):
-    model_type = Proyecto
-async def provide_proyecto_repo(db_session: Session) -> ProyectoRepository:
-    return ProyectoRepository(session=db_session)
+
+class UserRepository(SQLAlchemySyncRepository[User]):
+    model_type = User
+
+    def add_with_password_hash(self, user: User, **kwargs) -> User:
+        user.password = password_hasher.hash(user.password)
+
+        return self.add(user, **kwargs)
+
+    def check_password(self, username: str, password: str) -> bool:
+        user = self.get_one_or_none(username=username)
+        if not user:
+            return False
+
+        # --- INICIO DE CÓDIGO DE DEBUG ---
+        print("--- DEBUG LOGIN ---")
+        print(f"Password recibido (plain text): '{password}'")
+        print(f"Hash en la BD: '{user.password}'")
+        try:
+            is_valid = password_hasher.verify(password, user.password)
+            print(f"Resultado de la verificación: {is_valid}")
+        except Exception as e:
+            print(f"ERROR durante la verificación: {e}")
+            is_valid = False
+        print("--- FIN DEBUG ---")
+        # --- FIN DE CÓDIGO DE DEBUG ---
+
+        return is_valid # Retorna el resultado de la verificación
+    
+async def provide_user_repo(db_session: Session) -> UserRepository:
+    return UserRepository(session=db_session)
