@@ -1,66 +1,51 @@
+// src/services/UsersQuery.ts
 import axios from 'axios'
-import type { Token, User, UserCreate } from '../interfaces/index'
+import type { Token, User } from '../interfaces/index'
 
-// Base URL del backend, configurable desde variables de entorno
-const API_BASE ='//localhost:8000'
+const API_BASE = '//localhost:8000'
 
-/**
- * Obtiene todos los usuarios
- */
-export async function getUsers(): Promise<User[]> {
-  const response = await axios.get<User[]>(`${API_BASE}/users`)
-  return response.data
+export interface LoginToken {
+  accessToken: string
 }
 
-/**
- * Crea un nuevo usuario
- */
-export async function createUser(user: UserCreate): Promise<User> {
-  const response = await axios.post<User>(
-    `${API_BASE}/users`,
-    user,
-    {
-      headers: { 'Content-Type': 'application/json' },
-    }
-  )
-  return response.data
-}
-
-/**
- * Obtiene un usuario por ID
- */
-export async function getUser(id: number): Promise<User> {
-  const response = await axios.get<User>(`${API_BASE}/users/${id}`)
-  return response.data
-}
-
-/**
- * Obtiene el usuario actualmente autenticado
- */
-export async function getMyUser(): Promise<User> {
-  const response = await axios.get<User>(`${API_BASE}/users/me`)
-  return response.data
-}
-
-/**
- * Realiza login y obtiene el token de acceso
- */
 export async function login(
-  username: string,
-  password: string,
-): Promise<Token> {
-  const params = new URLSearchParams()
-  params.append('username', username)
-  params.append('password', password)
+    username: string,
+    password: string
+  ): Promise<LoginToken> {
+    const params = new URLSearchParams()
+    params.append('username', username)
+    params.append('password', password)
+  
+    const { data } = await axios.post<Token>(
+      `${API_BASE}/auth/login`,
+      params,
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    )
+  
+    // aquí hacemos el alias: tomo data.access_token y lo renombro a accessToken
+    const { access_token: accessToken } = data  
+    console.log('Token recibido:', accessToken)
+  
+    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+    return { accessToken }
+  }
 
-  const response = await axios.post<Token>(
-    `${API_BASE}/auth/login`,
-    params,
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    }
+
+  // esta interfaz solo la uso para mapear el JSON que devuelve el endpoint /users/me. 
+interface RawUser {
+  id: number
+  username: string
+  is_admin: boolean
+}
+export async function getCurrentUser(): Promise<User> {
+  const { data: raw } = await axios.get<RawUser>(
+    `${API_BASE}/users/me`
   )
-  return response.data
+  // aquí mapeamos is_admin → isAdmin
+  const user: User = {
+    id: raw.id,
+    username: raw.username,
+    isAdmin: raw.is_admin,
+  }
+  return user
 }

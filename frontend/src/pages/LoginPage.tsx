@@ -1,32 +1,24 @@
-import { useNavigate } from 'react-router-dom';
-import { login } from '../services/UsersQuery';
-import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useAuth } from '../stores/AuthContext'
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
-  // Al cambiar `error`, dispara un timeout para borrarlo en 3s
-  useEffect(() => {
-    if (!error) return;
-    const timer = setTimeout(() => setError(null), 3000);
-    return () => clearTimeout(timer);
-  }, [error]);
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
     try {
-      const data = await login(username, password);
-      localStorage.setItem('token', data.accessToken);
-      navigate('/home');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Usuario o contraseña inválidos');
+      await login(username, password)   // ya se encarga de token + user
+      navigate('/home')
+    } catch {
+      setError('Usuario o contraseña inválidos')
     }
-  };
-
+  }
   return (
     <div className="relative font-sans min-h-screen antialiased bg-gradient-to-tr from-gray-900 to-green-800 pt-24 pb-5">
       {/* Banner de error fijo */}
@@ -71,21 +63,6 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="relative flex items-center">
-            <input
-              type="checkbox"
-              name="remember"
-              id="remember"
-              defaultChecked
-              className="inline-block align-middle"
-            />
-            <label
-              htmlFor="remember"
-              className="inline-block align-middle ml-2 text-gray-700"
-            >
-              Recordar datos
-            </label>
-          </div>
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-between items-center">
             <a

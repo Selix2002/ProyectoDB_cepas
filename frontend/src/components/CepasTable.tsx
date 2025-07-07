@@ -9,6 +9,7 @@ import {
   fetchCepasFull,
   updateCepasJSONB_forTable,
 } from "../services/CepasQuery";
+import { useAuth } from "../stores/AuthContext";
 import { actualizarCepaPorCampo } from "../utils/cepaUpdate";
 import { getCepasColumnDefs } from "./CepasColumns";
 
@@ -25,6 +26,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
+  const { user } = useAuth();
 
   const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
 
@@ -185,7 +187,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
               minWidth: 100,
               filter: true,
               sortable: true,
-              editable: true,
+              editable: user?.isAdmin ?? false, // Solo admins pueden editar
               resizable: true,
               wrapHeaderText: true,
             }}

@@ -11,12 +11,18 @@ export interface UserBase {
   }
   
   export interface Token {
-    accessToken: string
-    tokenType: string
-    expiresIn: number
-    refreshToken: string
+    access_token: string
+    token_type: string
+    expires_in: number
+    refresh_token: string | null
   }
-
+  export interface AuthContextType {
+    user: User | null
+    token: string | null
+    login: (username: string, password: string) => Promise<void>
+    logout: () => void
+  }
+  
   export interface CepaUpdatePayload {
     // Campos directos de Cepa
     nombre?: string;

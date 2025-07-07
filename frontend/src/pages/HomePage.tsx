@@ -6,14 +6,17 @@ import type { GridReadyCallback } from "../components/CepasTable";
 import type { GridApi, Column } from "ag-grid-community";
 import { SlidersHorizontal, FlaskConical, MoreVertical } from "lucide-react";
 import TableStats_col, { TableStats_row } from "../components/TableStats";
-import { Link } from "react-router-dom";
-import { exportToExcel } from '../utils/exportExcel';
+import { Link, useNavigate } from "react-router-dom";
+import { exportToExcel } from "../utils/exportExcel";
+import { useAuth } from "../stores/AuthContext";
 
 export function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [columns, setColumns] = useState<Column[]>([]);
   const [gridApi, setGridApi] = useState<GridApi>();
   const [rowCount_, setRowCount] = useState(0);
+  const { logout,user } = useAuth();
+  const navigate = useNavigate();
 
   // 1) Capturamos el GridApi y la lista inicial de Column[]
   const handleGridReady: GridReadyCallback = (params) => {
@@ -24,10 +27,14 @@ export function HomePage() {
     setRowCount(rowCount);
   };
   const handleExport = () => {
-    console.log('Exportando a Excel: gridApi:', gridApi);
+    console.log("Exportando a Excel: gridApi:", gridApi);
     if (!gridApi) return;
-      exportToExcel(gridApi, 'Cepas', 'cepas.xlsx');
-};
+    exportToExcel(gridApi, "Cepas", "cepas.xlsx");
+  };
+  const handleLogout = () => {
+    logout(); // limpia token y user de estado y localStorage
+    navigate("/login"); // vuelve al login
+  };
 
   // 2) Al hacer toggle, llamamos a gridApi.setColumnsVisible(...) y luego
   //    volvemos a leer api.getColumns() para actualizar el estado de los checkboxes
@@ -44,28 +51,31 @@ export function HomePage() {
       <div className="relative h-16 flex items-center mt-8 justify-center border-b border-gray-700 px-4">
         {/* Contenedor de botones en la esquina superior izquierda */}
         <div className="absolute left-4 flex space-x-2">
-          <Link to="/home/addatribute">
-            <button>
-              + Nuevo Atributo
-            </button>
-          </Link>
+          {user?.isAdmin && (
+            <>
+              <Link to="/home/addatribute">
+                <button className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700 transition">
+                  + Nuevo Atributo
+                </button>
+              </Link>
 
-          <Link to="/home/addcepa">
-            <button>
-              + Nueva Cepa
-            </button>
-          </Link>
+              <Link to="/home/addcepa">
+                <button className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700 transition">
+                  + Nueva Cepa
+                </button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Botón menú desplegable en esquina superior derecha */}
         {/* Botones en esquina superior derecha */}
         <div className="absolute top-1/2 right-4 transform -translate-y-1/2 flex space-x-2">
-          <button onClick={handleExport}>
-            Exportar
+          <button className="logout" onClick={handleLogout}>
+            Cerrar Sesión
           </button>
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-          >
+          <button onClick={handleExport}>Exportar</button>
+          <button onClick={() => setMenuOpen((v) => !v)}>
             <MoreVertical className="h-6 w-6 text-white" />
           </button>
         </div>

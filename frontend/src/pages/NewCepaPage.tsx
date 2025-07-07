@@ -295,6 +295,7 @@ export default function NewCepaPage() {
     createCepa(payload)
       .then((response) => {
         console.log("Cepa creada con éxito:", response);
+        alert("Cepa creada con éxito");
         // Aquí podrías redirigir a otra página o mostrar un mensaje de éxito
       })
       .catch((error) => {

@@ -26,7 +26,7 @@ export async function exportToExcel(
 
   // 3) Agregar fila de encabezados y pintar bordes
   const headerRow = worksheet.addRow(headers);
-  headerRow.eachCell({ includeEmpty: true }, (cell) => {
+  headerRow.eachCell({ includeEmpty: true }, cell => {
     cell.border = {
       top:    { style: 'thin', color: { argb: 'FF000000' } },
       left:   { style: 'thin', color: { argb: 'FF000000' } },
@@ -35,11 +35,25 @@ export async function exportToExcel(
     };
   });
 
-  // 4) Agregar filas de datos y pintar bordes
+  // 4) Recopilar datos de filas, ordenar por 'id' ascendente y luego agregar filas
+  const rowData: any[] = [];
   gridApi.forEachNode(node => {
+    if (node.data) {
+      rowData.push(node.data);
+    }
+  });
+
+  // Asumiendo que cada fila tiene la propiedad 'id' en root
+  rowData.sort((a, b) => {
+    const idA = typeof a.id === 'number' ? a.id : parseFloat(a.id);
+    const idB = typeof b.id === 'number' ? b.id : parseFloat(b.id);
+    return (idA || 0) - (idB || 0);
+  });
+
+  rowData.forEach(data => {
     const row = fieldKeys.map(key => {
       const keys = key.split('.');
-      let val: any = node.data;
+      let val: any = data;
       for (const k of keys) {
         if (val == null) break;
         val = val[k];
@@ -48,8 +62,9 @@ export async function exportToExcel(
         ? JSON.stringify(val)
         : val ?? '';
     });
+
     const rowObj = worksheet.addRow(row);
-    rowObj.eachCell({ includeEmpty: true }, (cell) => {
+    rowObj.eachCell({ includeEmpty: true }, cell => {
       cell.border = {
         top:    { style: 'thin', color: { argb: 'FF000000' } },
         left:   { style: 'thin', color: { argb: 'FF000000' } },
@@ -60,9 +75,9 @@ export async function exportToExcel(
   });
 
   // 5) Auto-ajustar ancho de columnas
-  worksheet.columns.forEach((column) => {
+  worksheet.columns.forEach(column => {
     let maxLength = 10;
-    column.eachCell?.({ includeEmpty: true }, (cell) => {
+    column.eachCell?.({ includeEmpty: true }, cell => {
       const cellValue = cell.value ? cell.value.toString() : '';
       maxLength = Math.max(maxLength, cellValue.length);
     });

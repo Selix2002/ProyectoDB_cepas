@@ -33,7 +33,14 @@ button {
 }
 button:hover {
   background-color: #000000;
-
+}
+button.logout{
+  background-color: #ff0000;
+  cursor: pointer;
+  transition: background-color 0.5s;
+}
+button.logout:hover {
+  background-color: #000000;
 }
 .ag-theme-alpine.custom-space {
   --ag-font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial,
