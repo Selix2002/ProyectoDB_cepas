@@ -88,7 +88,7 @@ CREATE DATABASE db_cepas;
 1. **Instalar dependencias**
 
    ```bash
-   cd ../frontend
+   cd frontend
    npm install
    ```
 
@@ -105,7 +105,7 @@ CREATE DATABASE db_cepas;
 ## 🔐 Autenticación y Roles
 
 - El sistema distingue **usuarios** y **administradores** (`is_admin`).
-- Solo los administradores pueden añadir nuevas cepas y atributos.
+- Solo los administradores pueden añadir y modificar las cepas y atributos.
 - Utiliza el endpoint `/auth/login` para obtener el token JWT.
 - Para esta version del proyecto, se encuentra habilitada la creacion de usuarios atraves de la url `http://localhost:8000/schema#tag/user/post/users/create` sin necesidad de autenticación.
 
