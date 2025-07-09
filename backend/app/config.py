@@ -2,6 +2,8 @@
 from pathlib import Path
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
+
 
 # 1) carga manual del .env
 env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -10,7 +12,7 @@ load_dotenv(env_path)
 class Settings(BaseSettings):
     # Ya no necesitas env_file
     model_config = SettingsConfigDict()
-
+    secret_key: SecretStr = SecretStr("secret123")
     DATABASE_URL: str
     CORS_ORIGINS: list[str] = ["*"]
     FRONTEND_BUILD_DIR: str = str(
