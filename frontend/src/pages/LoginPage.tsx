@@ -66,7 +66,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-between items-center">
             <a
-              href="#"
+              href="/home"
               className="inline-block text-blue-500 hover:text-blue-800 hover:underline mt-3 sm:mt-0"
             >
               Ingresar como invitado
