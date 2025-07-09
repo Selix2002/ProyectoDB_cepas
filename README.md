@@ -72,10 +72,18 @@ CREATE DATABASE db_cepas;
    ```bash
    alembic upgrade head
    ```
-
-4. **Iniciar servidor**
+4. **Cargar datos**
+   Para cargar los datos desde un archivo, ejecutar:
 
    ```bash
+   cd temp
+   python load_data.py   
+   ```
+
+5. **Iniciar servidor**
+
+   ```bash
+   cd ..
    uvicorn app.main:app --reload
    ```
 
