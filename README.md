@@ -7,7 +7,7 @@ Este repositorio alberga una aplicación para la gestión de cepas microbiológi
 ## 📋 Requisitos Previos
 
 - **Git**  
-- **Python 3.11+**  
+- **Python 3.13**  
 - **Node.js 18+** y **npm**  
 - **PostgreSQL 14+**  
 
