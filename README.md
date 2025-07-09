@@ -28,15 +28,10 @@ Crea un archivo `.env` en la carpeta `backend/` con las siguientes variables:
 
 ```dotenv
 # Datos de conexión a PostgreSQL
-DATABASE_URL=postgresql://<usuario>:<contraseña>@localhost:5432/db_cepas
-
-# Configuración JWT
-JWT_SECRET=tu_secreto_jwt
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MINUTES=60
+DATABASE_URL=postgresql+psycopg2://<usuario>:<contraseña>@localhost/db_cepas
 ```
 
-> **Tip**: Sustituye `<usuario>` y `<contraseña>` por tus credenciales de PostgreSQL. Se sugiere, crear un user `sebas` con contraseña `sebas` para evitar realizar cambios en el codigo del proyecto.
+> **Tip**: Sustituye `<usuario>` y `<contraseña>` por tus credenciales de PostgreSQL. Se sugiere, crear un user `postgres` con contraseña `sebas` para evitar realizar cambios en el codigo del proyecto.
 
 
 ### 3. Configurar la base de datos
