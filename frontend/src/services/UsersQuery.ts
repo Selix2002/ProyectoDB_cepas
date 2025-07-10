@@ -15,7 +15,7 @@ export async function login(
     params.append('username', username)
     params.append('password', password)
   
-    const { data } = await axios.post<Token>(
+    const { data } = await api.post<Token>(
       `${api}/auth/login`,
       params,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
@@ -37,7 +37,7 @@ interface RawUser {
   is_admin: boolean
 }
 export async function getCurrentUser(): Promise<User> {
-  const { data: raw } = await axios.get<RawUser>(
+  const { data: raw } = await api.get<RawUser>(
     `${api}/users/me`
   )
   // aquí mapeamos is_admin → isAdmin

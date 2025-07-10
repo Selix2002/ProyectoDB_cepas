@@ -3,9 +3,8 @@ import { useEffect, useState, createContext, useContext} from 'react'
 import { login as apiLogin, getCurrentUser } from '../services/UsersQuery'
 import type { User } from '../interfaces/index'
 import type {ReactNode} from 'react'
-import axios from 'axios'
 import type { AuthContextType } from '../interfaces/index'
-
+import { api } from '../services/api'
 
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -19,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedToken = localStorage.getItem('auth_token')
     if (storedToken) {
       setToken(storedToken)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
       getCurrentUser()
         .then(u => setUser(u))
         .catch(() => {
@@ -48,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('auth_token')
 
 
-    delete axios.defaults.headers.common['Authorization']
+    delete api.defaults.headers.common['Authorization']
   }
 
   return (
