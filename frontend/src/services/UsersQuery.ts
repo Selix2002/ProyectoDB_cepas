@@ -1,7 +1,6 @@
 // src/services/UsersQuery.ts
-import axios from 'axios'
 import type { Token, User } from '../interfaces/index'
-import {api} from "./api.ts";
+import {api} from "./api";
 
 export interface LoginToken {
   accessToken: string
@@ -16,7 +15,7 @@ export async function login(
     params.append('password', password)
   
     const { data } = await api.post<Token>(
-      `${api}/auth/login`,
+      `/auth/login`,
       params,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     )
@@ -25,7 +24,7 @@ export async function login(
     const { access_token: accessToken } = data  
     console.log('Token recibido:', accessToken)
   
-    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
     return { accessToken }
   }
 
@@ -38,7 +37,7 @@ interface RawUser {
 }
 export async function getCurrentUser(): Promise<User> {
   const { data: raw } = await api.get<RawUser>(
-    `${api}/users/me`
+    `/users/me`
   )
   // aquí mapeamos is_admin → isAdmin
   const user: User = {

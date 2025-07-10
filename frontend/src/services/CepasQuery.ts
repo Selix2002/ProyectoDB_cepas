@@ -1,7 +1,7 @@
 import axios from "axios";
 import type {CepaUpdatePayload } from "../interfaces/index";
 
-import {api} from "./api.ts";
+import {api} from "./api";
 /**
  * Fetch de cepas con control de errores y validación de datos.
  * @returns Promise<any[]>: array de cepas o array vacío si hay error o datos inválidos.
