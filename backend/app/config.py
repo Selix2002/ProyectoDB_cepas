@@ -10,7 +10,6 @@ env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(env_path)
 
 class Settings(BaseSettings):
-    # Ya no necesitas env_file
     model_config = SettingsConfigDict()
     secret_key: SecretStr = SecretStr("secret123")
     DATABASE_URL: str
