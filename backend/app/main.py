@@ -5,6 +5,7 @@ from litestar.config.cors import CORSConfig
 from litestar.plugins.sqlalchemy import SQLAlchemyPlugin
 from litestar.openapi.config import OpenAPIConfig
 from litestar.openapi.plugins import ScalarRenderPlugin
+from litestar.openapi.spec import Server
 from litestar.static_files import create_static_files_router
 
 
@@ -30,6 +31,7 @@ openapi_config = OpenAPIConfig(
     title="Backend Cepas",
     description="API para la gestión de cepas",
     version="1.0.0",
+    servers=[ Server(url="https://proyectodb-cepas-v14l.onrender.com") ],
     root_schema_site="scalar",  # para usar ScalarRenderPlugin
     render_plugins=[ScalarRenderPlugin()],  # para usar ScalarRenderPlugin
 )
