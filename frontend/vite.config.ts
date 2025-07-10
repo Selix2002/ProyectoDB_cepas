@@ -7,9 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   // 2) Define la base de tu API: en dev usamos VITE_API_URL_DEV; en prod, VITE_API_URL
-  const API_URL = mode === 'production'
-    ? env.VITE_API_URL_PROD      // definida en Render: https://proyectodb-cepas-v14l.onrender.com
-    : env.VITE_API_URL_PROD  // local: http://localhost:8000
+  const API_URL = env.VITE_API_URL_PROD
 
   return {
     plugins: [react(), tailwindcss()],
