@@ -7,7 +7,7 @@ Este repositorio alberga una aplicación para la gestión de cepas microbiológi
 ## 📋 Requisitos Previos
 
 - **Git**  
-- **Python 3.11+**  
+- **Python 3.13**  
 - **Node.js 18+** y **npm**  
 - **PostgreSQL 14+**  
 
@@ -28,15 +28,10 @@ Crea un archivo `.env` en la carpeta `backend/` con las siguientes variables:
 
 ```dotenv
 # Datos de conexión a PostgreSQL
-DATABASE_URL=postgresql://<usuario>:<contraseña>@localhost:5432/db_cepas
-
-# Configuración JWT
-JWT_SECRET=tu_secreto_jwt
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MINUTES=60
+DATABASE_URL=postgresql+psycopg2://<usuario>:<contraseña>@localhost/db_cepas
 ```
 
-> **Tip**: Sustituye `<usuario>` y `<contraseña>` por tus credenciales de PostgreSQL. Se sugiere, crear un user `sebas` con contraseña `sebas` para evitar realizar cambios en el codigo del proyecto.
+> **Tip**: Sustituye `<usuario>` y `<contraseña>` por tus credenciales de PostgreSQL. Se sugiere, crear un user `postgres` con contraseña `sebas` para evitar realizar cambios en el codigo del proyecto.
 
 
 ### 3. Configurar la base de datos
@@ -72,10 +67,18 @@ CREATE DATABASE db_cepas;
    ```bash
    alembic upgrade head
    ```
-
-4. **Iniciar servidor**
+4. **Cargar datos**
+   Para cargar los datos desde un archivo, ejecutar:
 
    ```bash
+   cd temp
+   python load_data.py   
+   ```
+
+5. **Iniciar servidor**
+
+   ```bash
+   cd ..
    uvicorn app.main:app --reload
    ```
 
