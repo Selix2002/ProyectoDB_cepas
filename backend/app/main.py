@@ -5,6 +5,7 @@ from litestar.config.cors import CORSConfig
 from litestar.plugins.sqlalchemy import SQLAlchemyPlugin
 from litestar.openapi.config import OpenAPIConfig
 from litestar.openapi.plugins import ScalarRenderPlugin
+from litestar.openapi.spec import Server
 
 from app.security import oauth2_auth
 from app.db import db_config
@@ -30,6 +31,9 @@ openapi_config = OpenAPIConfig(
     version="1.0.0",
     root_schema_site="scalar",  # para usar ScalarRenderPlugin
     render_plugins=[ScalarRenderPlugin()],  # para usar ScalarRenderPlugin
+    servers=[Server(url="http://localhost:8000", description="Desarrollo local")],
+    # Base path para servir la documentación; por defecto sería "/schema"
+    path="/schema",
 )
 
 # 3. Instancia de Litestar

@@ -1,6 +1,6 @@
 from typing import Annotated, Sequence,Any, Union
 from typing import Any
-from litestar import Controller, Response, get, post, patch,Request
+from litestar import Controller, Response, get, post, patch,Request,delete
 from litestar.exceptions import HTTPException
 from advanced_alchemy.exceptions import NotFoundError
 from litestar.dto import DTOData
@@ -11,7 +11,8 @@ from litestar.connection import ASGIConnection
 from litestar.handlers import BaseRouteHandler
 from litestar.params import Body
 from litestar.enums import RequestEncodingType
-
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 
 from app.repositories import (
@@ -43,6 +44,7 @@ def admin_user_guard(connection: ASGIConnection, _: BaseRouteHandler) -> None:
             status_code=403,
             detail="Not authorized.",
         )
+
 
 class CepaController(Controller):
     path = "/cepas"
@@ -117,13 +119,13 @@ class CepaController(Controller):
             return cepa_repo.get(id)
         except NotFoundError:
             raise HTTPException(status_code=404, detail="Cepa not found")
-    @post("/create", dto=CepaCreateDTO) #CREATE
+    @post("/create", dto=CepaCreateDTO,guards=[admin_user_guard]) #CREATE
     async def add_cepa(self,cepa_repo: CepaRepository,data: Cepa) -> Sequence[Cepa]:
         
         nueva = cepa_repo.add(data, auto_commit=True)
         return [nueva]
         
-    @patch("/update/{cepa_id:int}", dto=CepaUpdateDTO)  # UPDATE
+    @patch("/update/{cepa_id:int}", dto=CepaUpdateDTO,guards=[admin_user_guard])  # UPDATE
     async def update(self, cepa_id: int, data: DTOData[Cepa], cepa_repo: CepaRepository,request: Request,) -> Cepa:
         try:
             # 1. Obtenemos la instancia de la Cepa que vamos a actualizar.
@@ -163,7 +165,7 @@ class CepaController(Controller):
 
         return cepa_a_actualizar
 
-    @patch("/update-jsonb/{cepa_name:str}", dto=CepaUpdateJSONBDTO) #UPDATE JSONB
+    @patch("/update-jsonb/{cepa_name:str}", dto=CepaUpdateJSONBDTO,guards=[admin_user_guard]) #UPDATE JSONB
     async def update_jsonb(
         self,
         cepa_name: str,
@@ -215,16 +217,40 @@ class UserController(Controller):
     
     @post("/create", dto=UserCreateDTO)  # CREATE
     async def create_user(self, user_repo: UserRepository, data: User) -> User:
+        # 1) Calculamos el próximo ID manualmente
+        next_id = user_repo.get_next_table_id("users")
+        data.id = next_id
+
+        print(f"DEBUG: Creando usuario con ID {data.id} y datos: {data}")
+        
+        # 2) Insertamos con hash de password y commit
         return user_repo.add_with_password_hash(data, auto_commit=True)
+
     
     @patch("/{user_id:int}", dto=UserUpdateDTO, guards=[admin_user_guard])
     async def update_user(
-        self, users_repo: UserRepository, user_id: int, data: DTOData[User]
+        self, user_repo: UserRepository, user_id: int, data: DTOData[User]
     ) -> User:
-        user, _ = users_repo.get_and_update(
+        user, _ = user_repo.get_and_update(
             match_fields="id", id=user_id, **data.as_builtins(), auto_commit=True
         )
         return user
+    @delete("/delete/{user_id:int}",guards=[admin_user_guard],)
+    async def delete_user(self, user_repo: UserRepository, user_id: int) -> None:
+        user_repo.delete(user_id, auto_commit=False)
+
+        # 2) Reajustamos IDs y secuencia
+        session: Session = user_repo.session
+        next_id = user_repo.resequence_table_ids(
+            table_name="users",
+            sequence_name="users_id_seq",
+            deleted_id=user_id,
+        )
+        # 3) Commit de todo el cambio (borrado + resecuenciación)
+        session.commit()
+
+        print(f"DEBUG: Usuario {user_id} borrado y IDs reajustados. Siguiente ID será {next_id}.")
+    
     
 class AuthController(Controller):
     path = "/auth"
