@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 # ------------------------------------------------------------------------
 # Ajusta aquí tu URL de conexión si es necesario
 # ------------------------------------------------------------------------
-DATABASE_URL = "postgresql+psycopg2://sebas:ZpqBNF2Lr6xvM26JPTWMYA6cYR8tvvzh@dpg-d1nf2uidbo4c73eh9qk0-a/sebas_cepas_db"
+DATABASE_URL = "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 

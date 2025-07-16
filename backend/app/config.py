@@ -1,25 +1,12 @@
-# backend/app/config.py
-from pathlib import Path
-from dotenv import load_dotenv
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-# 1) carga manual del .env
-env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(env_path)
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict()
+    debug: bool = True
+    database_url: str = "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
     secret_key: SecretStr = SecretStr("secret123")
-    DATABASE_URL: str
-    CORS_ORIGINS: list[str] = ["*"]
-    FRONTEND_BUILD_DIR: str = str(
-        Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
-    )
-    FRONTEND_MOUNT_PATH: str = "/"
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
-    DEBUG: bool = True
+    model_config = SettingsConfigDict(env_file=".env")
+
 
 settings = Settings()
