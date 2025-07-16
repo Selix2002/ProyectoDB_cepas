@@ -1,8 +1,10 @@
 from typing import Optional, List
 
-from sqlalchemy import ForeignKey, String, Integer
+from sqlalchemy import ForeignKey, String, Integer, Text
+import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
 class Base(DeclarativeBase):
@@ -16,6 +18,12 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     is_admin: Mapped[bool] = mapped_column(default=True)
+    hidden_columns: Mapped[list[str]] = mapped_column(
+        ARRAY(Text),                      # ahora text[]
+        nullable=False,
+        default=list,                     # en Python siempre será lista
+        server_default=sa.text("ARRAY[]::text[]"),
+    )
 
     #Relaciones uno-a-muchos con Cepa
 

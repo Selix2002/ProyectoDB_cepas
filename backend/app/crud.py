@@ -237,7 +237,7 @@ class UserController(Controller):
         return user
     @delete("/delete/{user_id:int}",guards=[admin_user_guard],)
     async def delete_user(self, user_repo: UserRepository, user_id: int) -> None:
-        user_repo.delete(user_id, auto_commit=False)
+        user_repo.delete(user_id, auto_commit=True)
 
         # 2) Reajustamos IDs y secuencia
         session: Session = user_repo.session

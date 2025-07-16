@@ -5,6 +5,7 @@ import type { GridReadyEvent, CellValueChangedEvent } from "ag-grid-community";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
 import { useState, useEffect, useMemo } from "react";
+import { loader } from '../utils/loader';
 import {
   fetchCepasFull,
   updateCepasJSONB_forTable,
@@ -12,6 +13,7 @@ import {
 import { useAuth } from "../stores/AuthContext";
 import { actualizarCepaPorCampo } from "../utils/cepaUpdate";
 import { getCepasColumnDefs } from "./CepasColumns";
+
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -23,7 +25,6 @@ interface CepasTableProps {
 
 export default function CepasTable({ onGridReady }: CepasTableProps) {
   const [rowData, setRowData] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const { user } = useAuth();
@@ -41,7 +42,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
 
   // 1) Carga inicial de datos
   useEffect(() => {
-    setLoading(true);
+    loader(true)
     fetchCepasFull()
       .then((data) => {
         setRowData(data);
@@ -52,9 +53,10 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
         setError(err);
       })
       .finally(() => {
-        setLoading(false);
+        loader(false)
       });
   }, []);
+
 
   // 2) Handler que dispara cuando el usuario termina de editar una celda
 
@@ -151,7 +153,6 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     }
   };
 
-  if (loading) return <div>Cargando cepas...</div>;
   if (error) return <div>Error al cargar datos: {error.message}</div>;
 
 

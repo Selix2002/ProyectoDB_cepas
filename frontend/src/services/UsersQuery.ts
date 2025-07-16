@@ -101,9 +101,34 @@ interface RawUser {
   id: number
   username: string
   is_admin: boolean
+  hidden_columns?: string[]; // Aseguramos que este campo sea opcional
 }
+interface RawUserWithHidden extends RawUser {
+  hidden_columns: string[];
+}
+
+export async function updateVisibleCol(
+  id: number,
+  hiddenColumns: string[]
+): Promise<User> {
+  const payload = { hidden_columns: hiddenColumns };
+  const { data: raw } = await axios.patch<RawUserWithHidden>(
+    `${API_BASE}/users/update/${id}`,
+    payload
+  );
+
+  return {
+    id: raw.id,
+    username: raw.username,
+    isAdmin: raw.is_admin,
+    // mapea el array de back-end al campo de tu interfaz
+    hiddenColumns: raw.hidden_columns
+  };
+}
+
+
 export async function getCurrentUser(): Promise<User> {
-  const { data: raw } = await axios.get<RawUser>(
+  const { data: raw } = await axios.get<RawUserWithHidden>(
     `${API_BASE}/users/me`
   )
   // aquí mapeamos is_admin → isAdmin
@@ -111,6 +136,7 @@ export async function getCurrentUser(): Promise<User> {
     id: raw.id,
     username: raw.username,
     isAdmin: raw.is_admin,
+    hiddenColumns: raw.hidden_columns ?? [] // Aseguramos que sea un array
   }
   return user
 }

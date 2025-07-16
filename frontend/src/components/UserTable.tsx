@@ -1,21 +1,22 @@
 // src/components/UserTable.tsx
-import { useState, useEffect } from 'react';
-import { AgGridReact } from 'ag-grid-react';
+import { useState, useEffect } from "react";
+import { AgGridReact } from "ag-grid-react";
+import {loader} from '../utils/loader';
 import type {
   GridApi,
   GridReadyEvent,
   CellValueChangedEvent,
   ICellRendererParams,
   GetRowIdParams,
-} from 'ag-grid-community';
+} from "ag-grid-community";
 import {
   getUsers,
   createUser,
   updateUser,
   deleteUser,
-} from '../services/UsersQuery';
-import type { User, UserCreate } from '../interfaces/index';
-import { useAuth } from '../stores/AuthContext';
+} from "../services/UsersQuery";
+import type { User, UserCreate } from "../interfaces/index";
+import { useAuth } from "../stores/AuthContext";
 
 type RowUser = User & Partial<UserCreate>;
 
@@ -30,9 +31,11 @@ export default function UserTable() {
 
   const loadUsers = async () => {
     try {
+      loader(true);
       setRowData(await getUsers());
+      loader(false);
     } catch (err) {
-      console.error('Error cargando usuarios:', err);
+      console.error("Error cargando usuarios:", err);
     }
   };
 
@@ -42,15 +45,17 @@ export default function UserTable() {
 
   const onAddUser = async () => {
     if (!gridApi) return;
-    const pwd = window.prompt('Ingrese la contraseña para el nuevo usuario:');
+    const pwd = window.prompt("Ingrese la contraseña para el nuevo usuario:");
     if (!pwd) return;
 
     try {
-      const nuevo = await createUser('N/I', pwd, false);
+      loader(true);
+      const nuevo = await createUser("N/I", pwd, false);
+      loader(false);
       gridApi.applyTransaction({ add: [nuevo] });
     } catch (err) {
-      console.error('Error creando usuario:', err);
-      window.alert('No se pudo crear el usuario.');
+      console.error("Error creando usuario:", err);
+      window.alert("No se pudo crear el usuario.");
     }
   };
 
@@ -62,11 +67,11 @@ export default function UserTable() {
     if (user.id === currentUser?.id) return;
 
     try {
-      if (user.id && (field === 'username' || field === 'isAdmin')) {
+      if (user.id && (field === "username" || field === "isAdmin")) {
         await updateUser(user.id, user.username, user.isAdmin);
       }
     } catch (err) {
-      console.error('Error guardando cambio de celda:', err);
+      console.error("Error guardando cambio de celda:", err);
     }
   };
 
@@ -75,42 +80,52 @@ export default function UserTable() {
     if (user.id === currentUser?.id) return;
     if (!window.confirm(`¿Eliminar al usuario “${user.username}”?`)) return;
     try {
+      loader(true);
       await deleteUser(user.id);
-
+      loader(false);
       await loadUsers();
       gridApi?.applyTransaction({ remove: [user] });
     } catch (err) {
-      console.error('Error eliminando usuario:', err);
+      console.error("Error eliminando usuario:", err);
     }
   };
 
   const columnDefs = [
-    { field: 'id', headerName: 'ID', editable: false, width: 80 },
+    { 
+      field: "id", 
+      headerName: "ID", 
+      editable: false, 
+      width: 80,
+      sort: "asc",
+    },
     {
-      field: 'username',
-      headerName: 'Usuario',
+      field: "username",
+      headerName: "Usuario",
       flex: 1,
-      editable:true},
+      editable: (params: { data: { id: number | undefined } }) =>
+        params.data.id !== currentUser?.id,
+        },
     {
-      field: 'password',
-      headerName: 'Contraseña',
+      field: "password",
+      headerName: "Contraseña",
       editable: false,
       width: 150,
-      valueFormatter: () => '******',
-      cellStyle: { textAlign: 'center', fontFamily: 'monospace' },
+      valueFormatter: () => "******",
+      cellStyle: { textAlign: "center", fontFamily: "monospace" },
     },
     {
-      field: 'isAdmin',
-      headerName: 'Administrador',
+      field: "isAdmin",
+      headerName: "Administrador",
       width: 130,
-      editable: (params: { data: { id: number | undefined; }; }) => params.data.id !== currentUser?.id,
-      cellEditor: 'agSelectCellEditor',
+      editable: (params: { data: { id: number | undefined } }) =>
+        params.data.id !== currentUser?.id,
+      cellEditor: "agSelectCellEditor",
       cellEditorParams: { values: [true, false] },
-      valueFormatter: (p: { value: boolean }) => (p.value ? 'Sí' : 'No'),
-      cellStyle: { display: 'flex', justifyContent: 'center' },
+      valueFormatter: (p: { value: boolean }) => (p.value ? "Sí" : "No"),
+      cellStyle: { display: "flex", justifyContent: "center" },
     },
     {
-      headerName: 'Eliminar Usuario',
+      headerName: "Eliminar Usuario",
       width: 100,
       cellRenderer: (params: ICellRendererParams<RowUser>) => {
         if (params.data?.id === currentUser?.id) {
@@ -138,9 +153,9 @@ export default function UserTable() {
       sortable: false,
       filter: false,
       cellStyle: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       },
     },
   ];
@@ -155,7 +170,7 @@ export default function UserTable() {
       >
         + Nuevo usuario
       </button>
-      <div className="flex-1 ag-theme-alpine" style={{ width: '100%' }}>
+      <div className="flex-1 ag-theme-alpine" style={{ width: "100%" }}>
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}

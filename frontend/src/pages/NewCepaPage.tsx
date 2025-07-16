@@ -5,6 +5,7 @@ import ModalConfirmation from "../components/ModalConfirmation";
 import { getCepasColumnDefs } from "../components/CepasColumns";
 import type { ColDef } from "ag-grid-community";
 import { Link } from "react-router-dom";
+import { loader } from '../utils/loader'; 
 
 
 
@@ -15,8 +16,10 @@ export default function NewCepaPage() {
   const [showModal, setShowModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  
 
   useEffect(() => {
+    loader(true);
     fetchCepasFull()
       .then((data) => {
         const defs = getCepasColumnDefs(data);
@@ -33,6 +36,7 @@ export default function NewCepaPage() {
         setFormData(initial);
       })
       .catch((error) => console.error("Error cargando cepas:", error));
+      loader(false);
   }, []);
 
   const handleInputChange = (field: string, value: string) => {
@@ -197,9 +201,10 @@ export default function NewCepaPage() {
 
     console.log("Payload a subir a la DB:", payload);
     //SUBIR A LA BASE DE DATOS
+    loader(true);
     createCepa(payload)
-      .then((response) => {
-        console.log("Cepa creada con éxito:", response);
+      .then(() => {
+        loader(false);
         alert("Cepa creada con éxito");
         setFormData({});
         setFileData({});
@@ -292,9 +297,10 @@ export default function NewCepaPage() {
     console.log("Objeto final a subir a la DB:", payload);
 
     // 7) Llama a la función de creación
+    loader(true);
     createCepa(payload)
-      .then((response) => {
-        console.log("Cepa creada con éxito:", response);
+      .then(() => {
+        loader(false);
         alert("Cepa creada con éxito");
         // Aquí podrías redirigir a otra página o mostrar un mensaje de éxito
       })

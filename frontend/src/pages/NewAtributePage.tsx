@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { fetchCepasFull, updateCepasJSONB } from "../services/CepasQuery";
 import ModalConfirmation from "../components/ModalConfirmation";
+import { loader } from '../utils/loader';
+
 
 export default function NewAttributePage() {
   const [cepas, setCepas] = useState<{ id: number; nombre: string }[]>([]);
@@ -11,9 +13,11 @@ export default function NewAttributePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    loader(true);
     fetchCepasFull()
       .then((data) => setCepas(data))
       .catch((error) => console.error("Error cargando cepas:", error));
+    loader(false);
   }, []);
 
   // Generar y descargar plantilla
@@ -88,10 +92,12 @@ export default function NewAttributePage() {
   const handleConfirmYes = async (dictToSave?: Record<string, string>) => {
     const dict = dictToSave ?? fileDict;
     try {
+      loader(true);
       await updateCepasJSONB(dict);
       alert("¡Atributos añadidos con éxito!");
       setFileDict({});
       setShowModal(false);
+      loader(false);
       inputRefs.current.forEach((el) => { if (el) el.value = ""; });
     } catch (err: any) {
       console.error(err);

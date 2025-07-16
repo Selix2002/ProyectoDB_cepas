@@ -8,6 +8,8 @@ import { MoreVertical } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { exportToExcel } from "../utils/exportExcel";
 import { useAuth } from "../stores/AuthContext";
+import { updateVisibleCol } from "../services/UsersQuery";
+
 
 export function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -21,6 +23,15 @@ export function HomePage() {
   const handleGridReady: GridReadyCallback = (params) => {
     const api = params.api;
     setGridApi(api);
+
+    // Si el usuario y sus preferencias existen, las aplicamos
+    if (user?.hiddenColumns && user.hiddenColumns.length > 0) {
+      // Los IDs de columna en AG-Grid suelen ser strings, los convertimos
+      const columnsToHide = user.hiddenColumns.map(String);
+      api.setColumnsVisible(columnsToHide, false);
+    }
+
+    // Actualizamos el estado local de las columnas para el DropdownMenu
     setColumns(api.getColumns() ?? []);
   };
   const handleExport = () => {
@@ -31,11 +42,26 @@ export function HomePage() {
     logout();
     navigate("/login");
   };
-
-  const handleToggle = (colId: string, visible: boolean) => {
-    if (!gridApi) return;
+  const handleToggle = async (colId: string, visible: boolean) => {
+    if (!gridApi || !user?.id) return;
+  
+    // 1) Actualiza visibilidad en pantalla
     gridApi.setColumnsVisible([colId], visible);
     setColumns(gridApi.getColumns() ?? []);
+  
+    // 2) Obtén todas las columnas (o [] si aún es null)
+    const allCols = gridApi.getColumns() ?? [];
+  
+    // 3) Filtra las ocultas y extrae su ID
+    const hiddenColumns = allCols
+      .filter(col => !col.isVisible())
+      .map(col => col.getColId());
+  
+    try {
+      await updateVisibleCol(user.id, hiddenColumns);
+    } catch (error) {
+      console.error("Error al guardar la visibilidad de las columnas:", error);
+    }
   };
 
   return (
@@ -99,7 +125,7 @@ export function HomePage() {
           isOpen={menuOpen}
           columns={columns}
           onToggle={handleToggle}
-          onClose={() => setMenuOpen(false)} // Corregido para que cierre el menú
+          onClose={() => setMenuOpen(true)}
         />
 
         <span className="text-xl font-medium">

@@ -1,6 +1,7 @@
 export interface UserBase {
     username: string
     isAdmin: boolean
+    hiddenColumns?: string[];
   }
   
   export interface User extends UserBase {
