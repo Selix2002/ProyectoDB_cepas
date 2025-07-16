@@ -14,7 +14,6 @@ import { useAuth } from "../stores/AuthContext";
 import { actualizarCepaPorCampo } from "../utils/cepaUpdate";
 import { getCepasColumnDefs } from "./CepasColumns";
 
-
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export type GridReadyCallback = (params: GridReadyEvent) => void;
@@ -25,6 +24,7 @@ interface CepasTableProps {
 
 export default function CepasTable({ onGridReady }: CepasTableProps) {
   const [rowData, setRowData] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const { user } = useAuth();
@@ -42,7 +42,9 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
 
   // 1) Carga inicial de datos
   useEffect(() => {
-    loader(true)
+    loader(true);
+    setLoading(true);
+    
     fetchCepasFull()
       .then((data) => {
         setRowData(data);
@@ -53,10 +55,11 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
         setError(err);
       })
       .finally(() => {
-        loader(false)
+        setLoading(false);
+        loader(false);
+
       });
   }, []);
-
 
   // 2) Handler que dispara cuando el usuario termina de editar una celda
 
@@ -111,10 +114,12 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
         });
 
         // 3.4) Enviamos al endpoint JSONB
+        loader(true);
         await updateCepasJSONB_forTable(
           { attribute_name: jsonKey, [updatedRow.nombre]: texto },
           existingDatosExtras
         );
+        loader(false);
 
         // 3.5) Reflejamos localmente
         setRowData((rows) =>
@@ -130,9 +135,9 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
           id: updatedRow.id,
           ...simplePayload,
         });
-
+        loader(true);
         await actualizarCepaPorCampo(updatedRow.id, field, texto);
-
+        loader(false);
         // Actualizamos localmente ese campo
         setRowData((rows) =>
           rows.map((r) =>
@@ -153,6 +158,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     }
   };
 
+  if (loading) return <div>Cargando cepas...</div>;
   if (error) return <div>Error al cargar datos: {error.message}</div>;
 
 
