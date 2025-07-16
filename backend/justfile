@@ -1,0 +1,15 @@
+set shell := ["uv", "run", "bash", "-c"]
+set dotenv-load := true
+
+default: api
+
+api:
+    litestar run --reload
+
+format: ruff_fmt ruff_lint
+
+ruff_fmt:
+    ruff format app/ migrations/
+
+ruff_lint:
+    ruff check --fix app/ migrations/
