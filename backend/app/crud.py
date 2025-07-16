@@ -227,7 +227,7 @@ class UserController(Controller):
         return user_repo.add_with_password_hash(data, auto_commit=True)
 
     
-    @patch("/{user_id:int}", dto=UserUpdateDTO, guards=[admin_user_guard])
+    @patch("/update/{user_id:int}", dto=UserUpdateDTO, guards=[admin_user_guard])
     async def update_user(
         self, user_repo: UserRepository, user_id: int, data: DTOData[User]
     ) -> User:

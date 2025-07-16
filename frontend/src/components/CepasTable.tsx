@@ -28,7 +28,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const { user } = useAuth();
 
-  const paginationPageSizeSelector = useMemo(() => [10, 20, 50, 70, 100], []);
+  const paginationPageSizeSelector = useMemo(() => [20, 50, 70, 100], []);
 
   // Estado para controlar la notificación (texto y tipo)
   const [notification, setNotification] = useState<{
@@ -192,7 +192,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
               wrapHeaderText: true,
             }}
             pagination
-            paginationPageSize={10}
+            paginationPageSize={20}
             paginationPageSizeSelector={paginationPageSizeSelector}
             domLayout="normal"
           />

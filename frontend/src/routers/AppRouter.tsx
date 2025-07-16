@@ -5,6 +5,7 @@ import NewCepaPage from '../pages/NewCepaPage';
 import NewAtributePage from '../pages/NewAtributePage';
 import LoginPage from '../pages/LoginPage';
 import PrivateRoute from '../components/PrivateRoute';
+import UserManagement from '../pages/UserManagement';
 
 export default function AppRouter() {
   return (
@@ -17,6 +18,7 @@ export default function AppRouter() {
         <Route element={<PrivateRoute />}>
           <Route path="/home/addcepa"      element={<NewCepaPage />} />
           <Route path="/home/addatribute"  element={<NewAtributePage />} />
+          <Route path="/home/UserManagement" element={<UserManagement />} />
           {/* agrega aquí más rutas */}
         </Route>
 

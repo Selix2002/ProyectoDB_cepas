@@ -9,8 +9,6 @@
   height: 100%;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: auto;
-  -moz-osx-font-smoothing: auto;
 }
 @layer base {
   html, body, #root {
@@ -42,12 +40,25 @@ button.logout{
 button.logout:hover {
   background-color: #000000;
 }
+button.drop{
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.5s;
+}
+button.drop:hover {
+  background-color: #ff2200;
+}
+button.users{
+  background-color: #121eff;
+  cursor: pointer;
+  transition: background-color 0.5s;
+}
+button.users:hover {
+  background-color: #000000;
+}
 .ag-theme-alpine.custom-space {
   --ag-font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial,
     sans-serif;
-}
-.div-cepas{
-  min-width: 18%;
 }
 
 .ag-body-viewport-wrapper.ag-layout-normal {

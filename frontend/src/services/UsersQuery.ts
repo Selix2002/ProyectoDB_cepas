@@ -8,6 +8,71 @@ export interface LoginToken {
   accessToken: string
 }
 
+export async function getUsers(): Promise<User[]> {
+  const { data: rawList } = await axios.get<RawUser[]>(
+    `${API_BASE}/users/get-all`
+  )
+  return rawList.map((raw) => ({
+    id: raw.id,
+    username: raw.username,
+    isAdmin: raw.is_admin,
+  }))
+}
+
+// --- CREATE USER ---
+export async function createUser(
+  username: string,
+  password: string,
+  isAdmin: boolean
+): Promise<User> {
+  const payload = {
+    username,
+    password,
+    is_admin: isAdmin,
+  }
+  const { data: raw } = await axios.post<RawUser>(
+    `${API_BASE}/users/create`,
+    payload
+  )
+  return {
+    id: raw.id,
+    username: raw.username,
+    isAdmin: raw.is_admin,
+  }
+}
+// El endpoint POST /users/create viene de tu UserController :contentReference[oaicite:3]{index=3}
+
+// DELETE USER
+/**
+ * Borra un usuario por su ID.
+ * @param id  ID del usuario a eliminar
+ */
+export async function deleteUser(id: number): Promise<void> {
+  await axios.delete<void>(`${API_BASE}/users/delete/${id}`);
+}
+
+// --- UPDATE USER ---
+export async function updateUser(
+  id: number,
+  username: string,
+  isAdmin: boolean
+): Promise<User> {
+  const payload = {
+    username,
+    is_admin: isAdmin,
+  }
+  const { data: raw } = await axios.patch<RawUser>(
+    `${API_BASE}/users/update/${id}`,
+    payload
+  )
+  return {
+    id: raw.id,
+    username: raw.username,
+    isAdmin: raw.is_admin,
+  }
+}
+
+
 export async function login(
     username: string,
     password: string
