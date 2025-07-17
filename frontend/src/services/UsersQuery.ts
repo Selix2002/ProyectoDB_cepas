@@ -1,16 +1,15 @@
 // src/services/UsersQuery.ts
-import axios from 'axios'
+import {api} from "./api";
 import type { Token, User } from '../interfaces/index'
 
-const API_BASE = '//localhost:8000'
 
 export interface LoginToken {
   accessToken: string
 }
 
 export async function getUsers(): Promise<User[]> {
-  const { data: rawList } = await axios.get<RawUser[]>(
-    `${API_BASE}/users/get-all`
+  const { data: rawList } = await api.get<RawUser[]>(
+    `/users/get-all`
   )
   return rawList.map((raw) => ({
     id: raw.id,
@@ -30,8 +29,8 @@ export async function createUser(
     password,
     is_admin: isAdmin,
   }
-  const { data: raw } = await axios.post<RawUser>(
-    `${API_BASE}/users/create`,
+  const { data: raw } = await api.post<RawUser>(
+    `/users/create`,
     payload
   )
   return {
@@ -48,7 +47,7 @@ export async function createUser(
  * @param id  ID del usuario a eliminar
  */
 export async function deleteUser(id: number): Promise<void> {
-  await axios.delete<void>(`${API_BASE}/users/delete/${id}`);
+  await api.delete<void>(`/users/delete/${id}`);
 }
 
 // --- UPDATE USER ---
@@ -61,8 +60,8 @@ export async function updateUser(
     username,
     is_admin: isAdmin,
   }
-  const { data: raw } = await axios.patch<RawUser>(
-    `${API_BASE}/users/update/${id}`,
+  const { data: raw } = await api.patch<RawUser>(
+    `/users/update/${id}`,
     payload
   )
   return {
@@ -81,8 +80,8 @@ export async function login(
     params.append('username', username)
     params.append('password', password)
   
-    const { data } = await axios.post<Token>(
-      `${API_BASE}/auth/login`,
+    const { data } = await api.post<Token>(
+      `/auth/login`,
       params,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     )
@@ -91,7 +90,7 @@ export async function login(
     const { access_token: accessToken } = data  
     console.log('Token recibido:', accessToken)
   
-    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
     return { accessToken }
   }
 
@@ -112,8 +111,8 @@ export async function updateVisibleCol(
   hiddenColumns: string[]
 ): Promise<User> {
   const payload = { hidden_columns: hiddenColumns };
-  const { data: raw } = await axios.patch<RawUserWithHidden>(
-    `${API_BASE}/users/update/${id}`,
+  const { data: raw } = await api.patch<RawUserWithHidden>(
+    `/users/update/${id}`,
     payload
   );
 
@@ -128,8 +127,8 @@ export async function updateVisibleCol(
 
 
 export async function getCurrentUser(): Promise<User> {
-  const { data: raw } = await axios.get<RawUserWithHidden>(
-    `${API_BASE}/users/me`
+  const { data: raw } = await api.get<RawUserWithHidden>(
+    `/users/me`
   )
   // aquí mapeamos is_admin → isAdmin
   const user: User = {
