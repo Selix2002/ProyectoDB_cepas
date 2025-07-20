@@ -191,6 +191,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             onGridReady={onGridReady}
             onCellValueChanged={handleCellValueChanged}
             defaultColDef={{
+              rowHeight: 70,
               minWidth: 150,
               filter: true,
               sortable: true,
