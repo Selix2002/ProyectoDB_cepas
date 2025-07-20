@@ -192,13 +192,13 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             onCellValueChanged={handleCellValueChanged}
             defaultColDef={{
               minWidth: 150,
+              autoHeight: true,
               filter: true,
               sortable: true,
               editable: user?.isAdmin ?? false, // Solo admins pueden editar
               resizable: true,
               wrapHeaderText: true,
             }}
-            rowHeight={70}
             pagination
             paginationPageSize={20}
             paginationPageSizeSelector={paginationPageSizeSelector}
