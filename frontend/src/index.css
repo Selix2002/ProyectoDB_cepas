@@ -56,10 +56,13 @@ button.users{
 button.users:hover {
   background-color: #000000;
 }
-.ag-theme-alpine.custom-space {
+.ag-theme-alpine {
   --ag-font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial,
     sans-serif;
+  --ag-font-size:14px;
+
 }
+
 
 .ag-body-viewport-wrapper.ag-layout-normal {
   overflow-x: scroll;

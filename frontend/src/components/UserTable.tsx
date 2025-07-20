@@ -17,8 +17,7 @@ import {
 } from "../services/UsersQuery";
 import type { User, UserCreate } from "../interfaces/index";
 import { useAuth } from "../stores/AuthContext";
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css'; // o el tema que uses
+
 
 type RowUser = User & Partial<UserCreate>;
 

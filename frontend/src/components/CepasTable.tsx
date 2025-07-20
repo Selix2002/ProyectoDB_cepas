@@ -191,7 +191,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             onGridReady={onGridReady}
             onCellValueChanged={handleCellValueChanged}
             defaultColDef={{
-              minWidth: 100,
+              minWidth: 150,
               filter: true,
               sortable: true,
               editable: user?.isAdmin ?? false, // Solo admins pueden editar
