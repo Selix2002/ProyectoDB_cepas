@@ -9,6 +9,7 @@
   height: 100%;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --ag-icon-font-family: "agGridMaterial";
 }
 @layer base {
   html, body, #root {
