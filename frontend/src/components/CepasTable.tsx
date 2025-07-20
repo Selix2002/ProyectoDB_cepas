@@ -198,6 +198,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
               resizable: true,
               wrapHeaderText: true,
             }}
+            rowHeight={50}
             pagination
             paginationPageSize={20}
             paginationPageSizeSelector={paginationPageSizeSelector}

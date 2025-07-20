@@ -40,6 +40,8 @@ const fixedCols: ColDef[] = [
     headerName: "Envío a Punta Arenas",
     field: "almacenamiento.envio_puq",
     filter: "agTextColumnFilter",
+    wrapHeaderText: true,
+    autoHeaderHeight: true, 
   },
   {
     headerName: "Temperatura -80°",
