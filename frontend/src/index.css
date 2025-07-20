@@ -3,13 +3,12 @@
 @import "tailwindcss";
 
 :root {
-  font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Space Grotesk";
   line-height: 1.5;
   font-weight: 400;
   height: 100%;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --ag-icon-font-family: "agGridMaterial";
 }
 @layer base {
   html, body, #root {
