@@ -191,7 +191,6 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
             onGridReady={onGridReady}
             onCellValueChanged={handleCellValueChanged}
             defaultColDef={{
-              rowHeight: 70,
               minWidth: 150,
               filter: true,
               sortable: true,
@@ -199,6 +198,7 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
               resizable: true,
               wrapHeaderText: true,
             }}
+            rowHeight={70}
             pagination
             paginationPageSize={20}
             paginationPageSizeSelector={paginationPageSizeSelector}
