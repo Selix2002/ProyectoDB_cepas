@@ -3,7 +3,7 @@
 @import "tailwindcss";
 
 :root {
-  font-family: "Space Grotesk";
+  font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   height: 100%;
@@ -56,13 +56,10 @@ button.users{
 button.users:hover {
   background-color: #000000;
 }
-.ag-theme-alpine {
+.ag-theme-alpine.custom-space {
   --ag-font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial,
     sans-serif;
-  --ag-font-size:14px;
-
 }
-
 
 .ag-body-viewport-wrapper.ag-layout-normal {
   overflow-x: scroll;
