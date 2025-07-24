@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from app.config import settings
 
 # Agrega el directorio 'backend' al PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -25,8 +26,7 @@ csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "cep
 df = pd.read_csv(csv_path)
 df = df.fillna("N/I")
 # 2) Conecta a la base
-DATABASE_URL = "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
-engine = create_engine(DATABASE_URL)
+engine = create_engine(settings.database_url)
 Session = sessionmaker(bind=engine)
 session = Session()
 

@@ -1,12 +1,12 @@
 import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+from app.config import settings
 
 # ------------------------------------------------------------------------
 # Ajusta aquí tu URL de conexión si es necesario
 # ------------------------------------------------------------------------
-DATABASE_URL = "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
-engine = create_engine(DATABASE_URL)
+engine = create_engine(settings.database_url)
 Session = sessionmaker(bind=engine)
 
 

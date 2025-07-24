@@ -4,8 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     debug: bool = True
-    database_url: str = "postgresql+psycopg2://postgres:sebas@localhost/db_cepas"
-    secret_key: SecretStr = SecretStr("secret123")
+    database_url: str
+    secret_key: SecretStr
     model_config = SettingsConfigDict(env_file=".env")
 
 
