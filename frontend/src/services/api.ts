@@ -1,9 +1,10 @@
 // src/services/api.ts
 import axios from "axios";
 
-const baseURL = "127.0.0.1:7000"
+// Lee la variable de entorno VITE_API_URL definida por Vite
+const baseURL = import.meta.env.VITE_API_URL;
 
 export const api = axios.create({
   baseURL,
-  timeout: 60_000,
+  timeout: 60_000, // 60 segundos
 });
