@@ -1,12 +1,12 @@
 import axios from "axios";
 import type {CepaUpdatePayload } from "../interfaces/index";
-
+import {api} from "./api";
 /**
  * Fetch de cepas con control de errores y validación de datos.
  * @returns Promise<any[]>: array de cepas o array vacío si hay error o datos inválidos.
  */
 export const fetchCepasFull = (): Promise<any[]> =>
-  axios
+  api
     .get("/cepas/get-all")
     .then((res) => {
       // Validamos que res.data sea un array
@@ -26,7 +26,9 @@ export const fetchCepasFull = (): Promise<any[]> =>
       } else {
         console.error("fetchCepasFull Error inesperado:", error);
       }
+      console.log(api)
       return [];
+      
     });
 
     /**
@@ -42,7 +44,7 @@ export const updateCepa = (
   cepaId: number,
   data: CepaUpdatePayload
 ): Promise<any> =>
-  axios
+  api
     .patch(`/cepas/update/${cepaId}`, data)
     .then((res) => res.data)
     .catch((error) => {
@@ -68,7 +70,7 @@ export async function updateCepasJSONB(
   }
 
   const requests = Object.entries(values).map(([cepaNombre, valor]) =>
-    axios.patch(
+    api.patch(
       `/cepas/update-jsonb/${encodeURIComponent(cepaNombre)}`,
       {
         datos_extra: { [newKey]: valor },
@@ -96,7 +98,7 @@ export async function updateCepasJSONB_forTable(
 
     // 3) enviamos TODO el objeto merged
     console.log("🔁 [updateCepasJSONB] payload:", { datos_extra: mergedDatosExtra });
-    return axios.patch(
+    return api.patch(
       `/cepas/update-jsonb/${encodeURIComponent(cepaNombre)}`,
       { datos_extra: mergedDatosExtra }
     );
@@ -108,7 +110,7 @@ export async function updateCepasJSONB_forTable(
 export async function createCepa(
   data: Record<string, any>
 ): Promise<any> {
-  return axios
+  return api
     .post("/cepas/create", data)
     .then((res) => res.data)
     .catch((error) => {

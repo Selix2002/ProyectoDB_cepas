@@ -20,6 +20,7 @@ import { useAuth } from "../stores/AuthContext";
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
+
 type RowUser = User & Partial<UserCreate>;
 
 export default function UserTable() {
@@ -162,7 +163,7 @@ export default function UserTable() {
     },
   ];
 
-  const defaultColDef = { sortable: true, filter: true, flex: 1 };
+  const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -183,6 +184,7 @@ export default function UserTable() {
           getRowId={(params: GetRowIdParams<RowUser>) =>
             params.data.id.toString()
           }
+          scrollbarWidth={16}
         />
       </div>
     </div>

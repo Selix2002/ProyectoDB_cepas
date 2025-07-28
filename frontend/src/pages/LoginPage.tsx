@@ -65,12 +65,6 @@ export default function LoginPage() {
 
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-between items-center">
-            <a
-              href="/home"
-              className="inline-block text-blue-500 hover:text-blue-800 hover:underline mt-3 sm:mt-0"
-            >
-              Ingresar como invitado
-            </a>
             <button
               type="submit"
               className="bg-blue-500 text-white py-2 px-6 rounded hover:bg-blue-600 transition"
