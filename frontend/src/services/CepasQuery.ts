@@ -12,6 +12,7 @@ export const fetchCepasFull = (): Promise<any[]> =>
       // Validamos que res.data sea un array
       if (!res.data || !Array.isArray(res.data)) {
         console.error("fetchCepasFull → datos inválidos:", res.data);
+        console.log("LA API ESTA EN XD",api);
         return [];
       }
       return res.data;
@@ -26,7 +27,6 @@ export const fetchCepasFull = (): Promise<any[]> =>
       } else {
         console.error("fetchCepasFull Error inesperado:", error);
       }
-      console.log("LA API ESTA EN XD",api)
       return [];
       
     });
