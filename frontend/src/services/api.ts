@@ -1,7 +1,7 @@
 // src/services/api.ts
 import axios from "axios";
 
-const baseURL = "https://proyectodb-cepas-v14l.onrender.com"
+const baseURL = "127.0.0.1:7000"
 
 export const api = axios.create({
   baseURL,

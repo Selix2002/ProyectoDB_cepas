@@ -26,7 +26,7 @@ export const fetchCepasFull = (): Promise<any[]> =>
       } else {
         console.error("fetchCepasFull Error inesperado:", error);
       }
-      console.log(api)
+      console.log("LA API ESTA EN XD",api)
       return [];
       
     });

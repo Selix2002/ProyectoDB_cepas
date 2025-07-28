@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
 
   // 2) Define la base de tu API: en dev usamos VITE_API_URL_DEV; en prod, VITE_API_URL
   const API_URL = mode === 'production'
-    ? env.VITE_API_URL_PROD      // definida en Render: https://proyectodb-cepas-v14l.onrender.com
+    ? env.VITE_API_URL_PROD      // definida en localhost: 127.0.0.1:7000
     : env.VITE_API_URL_DEV  // local: http://localhost:8000
 
   return {
