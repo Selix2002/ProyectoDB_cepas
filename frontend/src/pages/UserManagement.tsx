@@ -16,9 +16,10 @@ export default function UserPage() {
           Gestión de Usuarios
         </h1>
       </div>
-
       {/* CONTENIDO: tabla / ag-Grid */}
-        <UserTable />
+      <div className="border-dashed border-2 border-gray-200 bg-white p-4">
+            <UserTable />
+      </div>
     </div>
   );
 }
