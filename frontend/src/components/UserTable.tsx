@@ -1,7 +1,7 @@
 // src/components/UserTable.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { AgGridReact } from "ag-grid-react";
-import {loader} from '../utils/loader';
+import { loader } from '../utils/loader';
 import type {
   GridApi,
   GridReadyEvent,
@@ -23,7 +23,13 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 type RowUser = User & Partial<UserCreate>;
 
-export default function UserTable() {
+// 1. Definir la interfaz para las funciones que se van a exponer
+export interface UserTableHandles {
+  onAddUser: () => Promise<void>;
+}
+
+// 2. Envolver el componente en `forwardRef` para que pueda recibir una ref
+const UserTable = forwardRef<UserTableHandles>((_, ref) => {
   const { user: currentUser } = useAuth();
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const [rowData, setRowData] = useState<RowUser[]>([]);
@@ -62,11 +68,16 @@ export default function UserTable() {
     }
   };
 
+  // 3. Usar `useImperativeHandle` para exponer la función `onAddUser` a través de la ref
+  useImperativeHandle(ref, () => ({
+    onAddUser,
+  }));
+
   const onCellValueChanged = async (event: CellValueChangedEvent) => {
     const user = event.data as RowUser;
     const field = event.colDef.field;
 
-    // 1) Prohibir editar al propio usuario
+    // Prohibir editar al propio usuario
     if (user.id === currentUser?.id) return;
 
     try {
@@ -79,7 +90,7 @@ export default function UserTable() {
   };
 
   const onDeleteUser = async (user: RowUser) => {
-    // 2) Prohibir eliminar al propio usuario
+    // Prohibir eliminar al propio usuario
     if (user.id === currentUser?.id) return;
     if (!window.confirm(`¿Eliminar al usuario “${user.username}”?`)) return;
     try {
@@ -107,7 +118,7 @@ export default function UserTable() {
       flex: 1,
       editable: (params: { data: { id: number | undefined } }) =>
         params.data.id !== currentUser?.id,
-        },
+    },
     {
       field: "isAdmin",
       headerName: "Administrador",
@@ -153,18 +164,9 @@ export default function UserTable() {
     },
   ];
 
-  const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
+  const defaultColDef = { sortable: true, filter: true, minWidth: 100 };
 
   return (
-
-      <>
-      <div className="flex-none shadow p-6 relative">
-      <button
-        onClick={onAddUser}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded">
-        + Nuevo usuario
-      </button>
-    </div>
     <div className="ag-theme-alpine custom-space relative h-full">
         <AgGridReact
           rowData={rowData}
@@ -176,8 +178,8 @@ export default function UserTable() {
           onCellValueChanged={onCellValueChanged}
           getRowId={(params: GetRowIdParams<RowUser>) => params.data.id.toString()}
           scrollbarWidth={16} />
-      </div>
-
-      </>
+    </div>
   );
-}
+});
+
+export default UserTable;
