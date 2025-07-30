@@ -156,20 +156,22 @@ export default function UserTable() {
   const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
-    <div className="relative h-full p-4">
+    // Se elimina h-full del contenedor principal para que no entre en conflicto.
+    <div className="relative p-4">
       <button
         onClick={onAddUser}
         className="mb-2 px-4 py-2 bg-blue-600 text-white rounded"
       >
         + Nuevo usuario
       </button>
-      <div className="ag-theme-alpine custom-space h-full">
+      {/* Se establece una altura fija o mínima para el contenedor de la grilla. */}
+      <div className="ag-theme-alpine custom-space" style={{ height: '600px', width: '100%' }}>
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          theme="legacy"
-          domLayout="normal"
+          // domLayout="autoHeight" es una alternativa si quieres que la grilla se ajuste al contenido
+          domLayout="normal" 
           onGridReady={onGridReady}
           onCellValueChanged={onCellValueChanged}
           getRowId={(params: GetRowIdParams<RowUser>) =>
