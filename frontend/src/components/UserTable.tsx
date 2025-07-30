@@ -1,212 +1,183 @@
-// src/components/CepasTable.tsx
-
+// src/components/UserTable.tsx
+import { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
-import type { GridReadyEvent, CellValueChangedEvent } from "ag-grid-community";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import type { ColDef } from "ag-grid-community";
-import { useState, useEffect, useMemo } from "react";
-import { loader } from '../utils/loader';
+import {loader} from '../utils/loader';
+import type {
+  GridApi,
+  GridReadyEvent,
+  CellValueChangedEvent,
+  ICellRendererParams,
+  GetRowIdParams,
+} from "ag-grid-community";
 import {
-  fetchCepasFull,
-  updateCepasJSONB_forTable,
-} from "../services/CepasQuery";
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../services/UsersQuery";
+import type { User, UserCreate } from "../interfaces/index";
 import { useAuth } from "../stores/AuthContext";
-import { actualizarCepaPorCampo } from "../utils/cepaUpdate";
-import { getCepasColumnDefs } from "./CepasColumns";
-
-ModuleRegistry.registerModules([AllCommunityModule]);
-
-export type GridReadyCallback = (params: GridReadyEvent) => void;
-
-interface CepasTableProps {
-  onGridReady?: GridReadyCallback;
-}
-
-export default function CepasTable({ onGridReady }: CepasTableProps) {
-  const [rowData, setRowData] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
-  const { user } = useAuth();
-
-  const paginationPageSizeSelector = useMemo(() => [20, 50, 70, 100], []);
-
-  // Estado para controlar la notificación (texto y tipo)
-  const [notification, setNotification] = useState<{
-    text: string;
-    type: "success" | "error";
-  } | null>(null);
-
-  
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 
-  // 1) Carga inicial de datos
+type RowUser = User & Partial<UserCreate>;
+
+export default function UserTable() {
+  const { user: currentUser } = useAuth();
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
+  const [rowData, setRowData] = useState<RowUser[]>([]);
+
   useEffect(() => {
-    loader(true);
-    setLoading(true);
-    
-    fetchCepasFull()
-      .then((data) => {
-        setRowData(data);
-        setColumnDefs(getCepasColumnDefs(data));
-      })
-      .catch((err) => {
-        console.error("Error al cargar cepas:", err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-        loader(false);
+    if (gridApi) loadUsers();
+  }, [gridApi]);
 
-      });
-  }, []);
-
-  // 2) Handler que dispara cuando el usuario termina de editar una celda
-
-  const handleCellValueChanged = async (params: CellValueChangedEvent) => {
-    // 1) Si no hubo cambio, salimos
-    if (params.oldValue === params.newValue) return;
-
-    const updatedRow = params.data;
-    const field = params.colDef.field as string;
-    const rawValue = params.newValue;
-    const texto =
-      typeof rawValue === "string" ? rawValue.trim() : String(rawValue).trim();
-
-    // 2) Validación de texto
-    if (!texto || texto.toLowerCase() === "null") {
-      setNotification({
-        text: 'No se puede dejar la casilla vacía; si quieres vaciarla, escribe "N/I"',
-        type: "error",
-      });
-      setTimeout(() => setNotification(null), 3000);
-      return;
-    }
-
-    // 3) ¿Es JSONB? detectamos prefijo
-    const JSONB_PREFIX = "datos_extra.";
-    const isJSONBField = field.startsWith(JSONB_PREFIX);
-    // extraemos la clave real (ej: "EL XD")
-    const jsonKey = isJSONBField ? field.slice(JSONB_PREFIX.length) : "";
-
+  const loadUsers = async () => {
     try {
-      console.log("isJSONBField:", isJSONBField);
-      if (isJSONBField) {
-        // ————— Rama JSONB —————
-        // 3.1) Recolectar los datos_extra actuales de todas las filas
-        const existingDatosExtras = rowData.reduce<
-          Record<string, Record<string, any>>
-        >((acc, row) => {
-          acc[row.nombre] = row.datos_extra ?? {};
-          return acc;
-        }, {});
-
-        // 3.2) Mergeamos sólo la clave modificada
-        const merged = {
-          ...existingDatosExtras[updatedRow.nombre],
-          [jsonKey]: texto,
-        };
-
-        // 3.3) Console.log para inspeccionar payload
-        console.log("🛠️ JSONB PATCH >>", {
-          cepa: updatedRow.nombre,
-          datos_extra: merged,
-        });
-
-        // 3.4) Enviamos al endpoint JSONB
-        loader(true);
-        await updateCepasJSONB_forTable(
-          { attribute_name: jsonKey, [updatedRow.nombre]: texto },
-          existingDatosExtras
-        );
-        loader(false);
-
-        // 3.5) Reflejamos localmente
-        setRowData((rows) =>
-          rows.map((r) =>
-            r.nombre === updatedRow.nombre ? { ...r, datos_extra: merged } : r
-          )
-        );
-      } else {
-        // ————— Rama campo normal —————
-        const simplePayload = { [field]: texto };
-
-        console.log("🔧 SIMPLE PATCH >>", {
-          id: updatedRow.id,
-          ...simplePayload,
-        });
-        loader(true);
-        await actualizarCepaPorCampo(updatedRow.id, field, texto);
-        loader(false);
-        // Actualizamos localmente ese campo
-        setRowData((rows) =>
-          rows.map((r) =>
-            r.id === updatedRow.id ? { ...r, [field]: texto } : r
-          )
-        );
-      }
-
-      setNotification({ text: "Cambios guardados con éxito", type: "success" });
+      loader(true);
+      setRowData(await getUsers());
+      loader(false);
     } catch (err) {
-      console.error("Error al actualizar:", err);
-      setNotification({
-        text: "Hubo un error al guardar los cambios",
-        type: "error",
-      });
-    } finally {
-      setTimeout(() => setNotification(null), 3000);
+      console.error("Error cargando usuarios:", err);
     }
   };
 
-  if (loading) return <div>Cargando cepas...</div>;
-  if (error) return <div>Error al cargar datos: {error.message}</div>;
+  const onGridReady = (params: GridReadyEvent) => {
+    setGridApi(params.api);
+  };
 
+  const onAddUser = async () => {
+    if (!gridApi) return;
+    const pwd = window.prompt("Ingrese la contraseña para el nuevo usuario:");
+    if (!pwd) return;
+
+    try {
+      loader(true);
+      const nuevo = await createUser("Nuevo Usuario", pwd, false);
+      loader(false);
+      gridApi.applyTransaction({ add: [nuevo] });
+    } catch (err) {
+      console.error("Error creando usuario:", err);
+      window.alert("No se pudo crear el usuario.");
+    }
+  };
+
+  const onCellValueChanged = async (event: CellValueChangedEvent) => {
+    const user = event.data as RowUser;
+    const field = event.colDef.field;
+
+    // 1) Prohibir editar al propio usuario
+    if (user.id === currentUser?.id) return;
+
+    try {
+      if (user.id && (field === "username" || field === "isAdmin")) {
+        await updateUser(user.id, user.username, user.isAdmin);
+      }
+    } catch (err) {
+      console.error("Error guardando cambio de celda:", err);
+    }
+  };
+
+  const onDeleteUser = async (user: RowUser) => {
+    // 2) Prohibir eliminar al propio usuario
+    if (user.id === currentUser?.id) return;
+    if (!window.confirm(`¿Eliminar al usuario “${user.username}”?`)) return;
+    try {
+      loader(true);
+      await deleteUser(user.id);
+      loader(false);
+      await loadUsers();
+      gridApi?.applyTransaction({ remove: [user] });
+    } catch (err) {
+      console.error("Error eliminando usuario:", err);
+    }
+  };
+
+  const columnDefs = [
+    { 
+      field: "id", 
+      headerName: "ID", 
+      editable: false, 
+      width: 80,
+      sort: "asc",
+    },
+    {
+      field: "username",
+      headerName: "Usuario",
+      flex: 1,
+      editable: (params: { data: { id: number | undefined } }) =>
+        params.data.id !== currentUser?.id,
+        },
+    {
+      field: "isAdmin",
+      headerName: "Administrador",
+      editable: (params: { data: { id: number | undefined } }) =>
+        params.data.id !== currentUser?.id,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: { values: [true, false] },
+      valueFormatter: (p: { value: boolean }) => (p.value ? "Sí" : "No"),
+      cellStyle: { display: "flex", justifyContent: "center" },
+    },
+    {
+      headerName: "Eliminar Usuario",
+      cellRenderer: (params: ICellRendererParams<RowUser>) => {
+        if (params.data?.id === currentUser?.id) {
+          return (
+            <button
+              disabled
+              title="No puedes eliminarte a ti mismo"
+              className="drop opacity-50 cursor-not-allowed"
+            >
+              🚫
+            </button>
+          );
+        }
+        return (
+          <button
+            onClick={() => params.data && onDeleteUser(params.data)}
+            title="Eliminar usuario"
+            className="drop"
+          >
+            🗑️
+          </button>
+        );
+      },
+      suppressHeaderMenuButton: true,
+      sortable: false,
+      filter: false,
+      cellStyle: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      },
+    },
+  ];
+
+  const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
-    <>
-      {/* Notificación */}
-      {notification && (
-        <div
-          className={`absolute top-4 left-1/2 -translate-x-1/2 z-10 mb-2 px-4 py-2 rounded text-center ${
-            notification.type === "success"
-              ? "bg-blue-600 text-white"
-              : "bg-red-600 text-white"
-          }`}
-        >
-          {notification.text}
-        </div>
-      )}
-
-      {/* Contenedor con scroll horizontal y barra de progreso */}
-      <div
-        className="relative h-full"
+    <div className="w-full h-full flex flex-col">
+      <button
+        onClick={onAddUser}
+        className="mb-2 px-4 py-2 bg-blue-600 text-white rounded"
       >
-        <div
-          className="ag-theme-alpine custom-space h-full" 
-        >
-          <AgGridReact
-            columnDefs={columnDefs}
-            rowData={rowData}
-            theme="legacy"
-            scrollbarWidth={16}
-            onGridReady={onGridReady}
-            onCellValueChanged={handleCellValueChanged}
-            defaultColDef={{
-              minWidth: 100,
-              filter: true,
-              sortable: true,
-              editable: user?.isAdmin ?? false, // Solo admins pueden editar
-              resizable: true,
-              wrapHeaderText: true,
-            }}
-            rowHeight={50}
-            pagination
-            paginationPageSize={20}
-            paginationPageSizeSelector={paginationPageSizeSelector}
-            domLayout="normal"
-          />
-        </div>
+        + Nuevo usuario
+      </button>
+      <div className="ag-theme-alpine custom-space h-full">
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          theme="legacy"
+          domLayout="normal"
+          onGridReady={onGridReady}
+          onCellValueChanged={onCellValueChanged}
+          getRowId={(params: GetRowIdParams<RowUser>) =>
+            params.data.id.toString()
+          }
+          scrollbarWidth={16}
+        />
       </div>
-    </>
+    </div>
   );
 }
