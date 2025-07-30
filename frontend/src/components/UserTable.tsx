@@ -146,7 +146,7 @@ export default function UserTable() {
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          domLayout="normal"
+          domLayout="autoHeight"
           theme="legacy"
           onGridReady={onGridReady}
           onCellValueChanged={onCellValueChanged}
