@@ -1,26 +1,27 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 import UserTable from '../components/UserTable';
+
 export default function UserPage() {
   return (
-    <div className="h-screen flex flex-col border rounded-lg m-4 overflow-hidden">
+    // Se eliminaron las clases de flexbox y altura para evitar conflictos con AG Grid.
+    <div className="border rounded-lg m-4">
       {/* HEADER */}
-      <div className="flex-none bg-white shadow p-6 relative">
+      <div className="bg-white shadow p-6 relative">
         {/* BOTÓN VOLVER */}
         <Link to="/home">
-        <button className="text-white">
-          ← Volver
-        </button>
+          <button className="text-black bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded">
+            ← Volver
+          </button>
         </Link>
         {/* TÍTULO CENTRADO */}
-        <h1 className="text-4xl font-bold text-center">
+        <h1 className="text-4xl font-bold text-center absolute inset-0 pt-6">
           Gestión de Usuarios
         </h1>
       </div>
 
-     {/* CONTENIDO: tabla / ag-Grid */}
-      <div className="flex-1 border-t border-gray-700 box-border">
-        <UserTable />
-      </div>
+      {/* CONTENIDO: tabla / ag-Grid */}
+      {/* Se eliminó el div contenedor intermedio */}
+      <UserTable />
     </div>
   );
 }
