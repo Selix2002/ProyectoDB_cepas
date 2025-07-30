@@ -156,11 +156,16 @@ export default function UserTable() {
   const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
-      <div className="ag-theme-alpine custom-space relative h-full">
-         <button onClick={onAddUser}
-        className="bg-blue-600 text-white rounded">
+
+      <>
+      <div className="mb-4">
+      <button
+        onClick={onAddUser}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
         + Nuevo usuario
       </button>
+    </div>
+    <div className="ag-theme-alpine custom-space relative h-full">
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}
@@ -169,11 +174,8 @@ export default function UserTable() {
           theme="legacy"
           onGridReady={onGridReady}
           onCellValueChanged={onCellValueChanged}
-          getRowId={(params: GetRowIdParams<RowUser>) =>
-            params.data.id.toString()
-          }
-          scrollbarWidth={16}
-        />
-      </div>
+          getRowId={(params: GetRowIdParams<RowUser>) => params.data.id.toString()}
+          scrollbarWidth={16} />
+      </div></>
   );
 }
