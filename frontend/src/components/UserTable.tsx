@@ -160,8 +160,7 @@ export default function UserTable() {
       <>
       <div>
       <button
-        onClick={onAddUser}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded">
+        onClick={onAddUser}>
         + Nuevo usuario
       </button>
     </div>
