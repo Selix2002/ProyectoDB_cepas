@@ -39,7 +39,6 @@ export default function UserTable() {
       loader(false);
     } catch (err) {
       console.error("Error cargando usuarios:", err);
-      loader(false);
     }
   };
 
@@ -60,7 +59,6 @@ export default function UserTable() {
     } catch (err) {
       console.error("Error creando usuario:", err);
       window.alert("No se pudo crear el usuario.");
-      loader(false);
     }
   };
 
@@ -92,7 +90,6 @@ export default function UserTable() {
       gridApi?.applyTransaction({ remove: [user] });
     } catch (err) {
       console.error("Error eliminando usuario:", err);
-      loader(false);
     }
   };
 
@@ -159,23 +156,13 @@ export default function UserTable() {
   const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
-    // Se elimina h-full del contenedor principal para que no entre en conflicto.
-    <div className="relative p-4">
-      <button
-        onClick={onAddUser}
-        className="mb-2 px-4 py-2 bg-blue-600 text-white rounded"
-      >
-        + Nuevo usuario
-      </button>
-      {/* Se establece una altura fija o mínima para el contenedor de la grilla. */}
-      <div className="ag-theme-alpine custom-space">
-          <AgGridReact
+      <div className="ag-theme-alpine custom-space h-full">
+        <AgGridReact
           rowData={rowData}
-          theme="legacy"
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          // domLayout="autoHeight" es una alternativa si quieres que la grilla se ajuste al contenido
-          domLayout="autoHeight" 
+          domLayout="normal"
+          theme="legacy"
           onGridReady={onGridReady}
           onCellValueChanged={onCellValueChanged}
           getRowId={(params: GetRowIdParams<RowUser>) =>
@@ -184,6 +171,5 @@ export default function UserTable() {
           scrollbarWidth={16}
         />
       </div>
-    </div>
   );
 }
