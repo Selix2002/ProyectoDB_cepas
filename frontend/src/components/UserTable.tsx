@@ -141,7 +141,7 @@ export default function UserTable() {
   const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
-      <div className="ag-theme-alpine custom-space">
+      <div className="ag-theme-alpine custom-space relative h-full">
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}
