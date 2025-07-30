@@ -1,7 +1,7 @@
 // src/components/UserTable.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { AgGridReact } from "ag-grid-react";
-import {loader} from '../utils/loader';
+import { loader } from '../utils/loader';
 import type {
   GridApi,
   GridReadyEvent,
@@ -23,7 +23,13 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 type RowUser = User & Partial<UserCreate>;
 
-export default function UserTable() {
+// 1. Definir la interfaz para las funciones que se van a exponer
+export interface UserTableHandles {
+  onAddUser: () => Promise<void>;
+}
+
+// 2. Envolver el componente en `forwardRef` para que pueda recibir una ref
+const UserTable = forwardRef<UserTableHandles>((_, ref) => {
   const { user: currentUser } = useAuth();
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const [rowData, setRowData] = useState<RowUser[]>([]);
@@ -53,7 +59,7 @@ export default function UserTable() {
 
     try {
       loader(true);
-      const nuevo = await createUser("N/I", pwd, false);
+      const nuevo = await createUser("Nuevo Usuario", pwd, false);
       loader(false);
       gridApi.applyTransaction({ add: [nuevo] });
     } catch (err) {
@@ -62,24 +68,56 @@ export default function UserTable() {
     }
   };
 
-  const onCellValueChanged = async (event: CellValueChangedEvent) => {
-    const user = event.data as RowUser;
+  // 3. Usar `useImperativeHandle` para exponer la función `onAddUser` a través de la ref
+  useImperativeHandle(ref, () => ({
+    onAddUser,
+  }));
+
+ const onCellValueChanged = async (event: CellValueChangedEvent) => {
+    // Prohibir editar al propio usuario
+    if (event.data.id === currentUser?.id) {
+      // Revertir el cambio visualmente en la grilla
+      event.node.setDataValue(event.colDef.field!, event.oldValue);
+      return;
+    }
     const field = event.colDef.field;
+    const user = event.data as RowUser;
+    // 1. Comprobar solo si el campo modificado es "username"
+    if (field === "username") {
+      const newUsername = event.newValue;
 
-    // 1) Prohibir editar al propio usuario
-    if (user.id === currentUser?.id) return;
+      // 2. Buscar en los datos existentes si otro usuario ya tiene ese nombre
+      //    Se excluye al usuario actual de la búsqueda (por su ID)
+      const isDuplicate = rowData.some(
+        (row) => row.username === newUsername && row.id !== user.id
+      );
 
+      // 3. Si se encuentra un duplicado...
+      if (isDuplicate) {
+        // Manda un alert al usuario
+        window.alert(`El nombre de usuario “${newUsername}” ya existe. Por favor, elija otro.`);
+        
+        // Reviertimos el valor de la celda al valor original
+        event.node.setDataValue(field, event.oldValue);
+        
+        // Detenemos la ejecución para no llamar a la API
+        return; 
+      }
+    }
+    // Si la validación pasa (o si se cambió otro campo como "isAdmin"), se procede a guardar
     try {
       if (user.id && (field === "username" || field === "isAdmin")) {
         await updateUser(user.id, user.username, user.isAdmin);
       }
     } catch (err) {
       console.error("Error guardando cambio de celda:", err);
+      // Si hay un error en el servidor, también revertimos el cambio
+      event.node.setDataValue(field!, event.oldValue);
     }
   };
 
   const onDeleteUser = async (user: RowUser) => {
-    // 2) Prohibir eliminar al propio usuario
+    // Prohibir eliminar al propio usuario
     if (user.id === currentUser?.id) return;
     if (!window.confirm(`¿Eliminar al usuario “${user.username}”?`)) return;
     try {
@@ -107,19 +145,10 @@ export default function UserTable() {
       flex: 1,
       editable: (params: { data: { id: number | undefined } }) =>
         params.data.id !== currentUser?.id,
-        },
-    {
-      field: "password",
-      headerName: "Contraseña",
-      editable: false,
-      width: 150,
-      valueFormatter: () => "******",
-      cellStyle: { textAlign: "center", fontFamily: "monospace" },
     },
     {
       field: "isAdmin",
       headerName: "Administrador",
-      width: 130,
       editable: (params: { data: { id: number | undefined } }) =>
         params.data.id !== currentUser?.id,
       cellEditor: "agSelectCellEditor",
@@ -129,7 +158,6 @@ export default function UserTable() {
     },
     {
       headerName: "Eliminar Usuario",
-      width: 100,
       cellRenderer: (params: ICellRendererParams<RowUser>) => {
         if (params.data?.id === currentUser?.id) {
           return (
@@ -163,30 +191,22 @@ export default function UserTable() {
     },
   ];
 
-  const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
+  const defaultColDef = { sortable: true, filter: true, minWidth: 100 };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <button
-        onClick={onAddUser}
-        className="mb-2 px-4 py-2 bg-blue-600 text-white rounded"
-      >
-        + Nuevo usuario
-      </button>
-      <div className="flex-1 ag-theme-alpine" style={{ width: "100%" }}>
+    <div className="ag-theme-alpine custom-space relative h-full">
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           domLayout="normal"
+          theme="legacy"
           onGridReady={onGridReady}
           onCellValueChanged={onCellValueChanged}
-          getRowId={(params: GetRowIdParams<RowUser>) =>
-            params.data.id.toString()
-          }
-          scrollbarWidth={16}
-        />
-      </div>
+          getRowId={(params: GetRowIdParams<RowUser>) => params.data.id.toString()}
+          scrollbarWidth={16} />
     </div>
   );
-}
+});
+
+export default UserTable;

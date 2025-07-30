@@ -79,7 +79,6 @@ export async function login(
     const params = new URLSearchParams()
     params.append('username', username)
     params.append('password', password)
-  
     const { data } = await api.post<Token>(
       `/auth/login`,
       params,
@@ -88,7 +87,6 @@ export async function login(
   
     // aquí hacemos el alias: tomo data.access_token y lo renombro a accessToken
     const { access_token: accessToken } = data  
-    console.log('Token recibido:', accessToken)
   
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
     return { accessToken }

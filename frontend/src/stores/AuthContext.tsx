@@ -37,7 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Sólo *ahora* que tengo token, traigo el user
     const u = await getCurrentUser()
     setUser(u)
-    console.log(u.isAdmin, 'user en AuthContext.tsx')
     localStorage.setItem('auth_user', JSON.stringify(u))
   }
 

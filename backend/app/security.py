@@ -28,7 +28,7 @@ oauth2_auth = OAuth2PasswordBearerAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     token_secret=settings.secret_key.get_secret_value(),
     token_url="/auth/login",
-    exclude=["/auth/login", "/schema","/cepas/get-all","/users/create"], 
+    exclude=["/auth/login", "/schema","/cepas/get-all"], 
 )
 
 

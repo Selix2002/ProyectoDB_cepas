@@ -12,10 +12,10 @@ export default function AppRouter() {
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/home"  element={<HomePage />} />
 
         {/* Grupo de rutas protegidas */}
         <Route element={<PrivateRoute />}>
+          <Route path="/home"  element={<HomePage />} />
           <Route path="/home/addcepa"      element={<NewCepaPage />} />
           <Route path="/home/addatribute"  element={<NewAtributePage />} />
           <Route path="/home/UserManagement" element={<UserManagement />} />
