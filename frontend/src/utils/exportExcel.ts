@@ -11,11 +11,10 @@ export async function exportToExcel(
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetName);
 
-  // 1) Columnas visibles y en orden
+  // ... (el resto del código para obtener columnas y cabeceras sigue igual)
   const allCols = gridApi.getAllGridColumns();
   const visibleCols = allCols.filter(col => col.isVisible());
 
-  // 2) Cabeceras y campos
   const fieldKeys = visibleCols.map(col => {
     const def = col.getColDef();
     return (def.field as string) ?? col.getColId();
@@ -24,7 +23,6 @@ export async function exportToExcel(
     col.getColDef().headerName ?? col.getColId()
   );
 
-  // 3) Agregar fila de encabezados y pintar bordes
   const headerRow = worksheet.addRow(headers);
   headerRow.eachCell({ includeEmpty: true }, cell => {
     cell.border = {
@@ -35,21 +33,23 @@ export async function exportToExcel(
     };
   });
 
-  // 4) Recopilar datos de filas, ordenar por 'id' ascendente y luego agregar filas
+  // 4) Recopilar datos de filas (¡AQUÍ ESTÁ EL CAMBIO!)
   const rowData: any[] = [];
-  gridApi.forEachNode(node => {
+  // Se reemplaza forEachNode por forEachNodeAfterFilterAndSort
+  gridApi.forEachNodeAfterFilterAndSort(node => {
     if (node.data) {
       rowData.push(node.data);
     }
   });
 
+  // El resto de la función para ordenar, agregar filas y descargar sigue igual...
   // Asumiendo que cada fila tiene la propiedad 'id' en root
   rowData.sort((a, b) => {
     const idA = typeof a.id === 'number' ? a.id : parseFloat(a.id);
     const idB = typeof b.id === 'number' ? b.id : parseFloat(b.id);
     return (idA || 0) - (idB || 0);
   });
-
+  
   rowData.forEach(data => {
     const row = fieldKeys.map(key => {
       const keys = key.split('.');
@@ -74,7 +74,6 @@ export async function exportToExcel(
     });
   });
 
-  // 5) Auto-ajustar ancho de columnas
   worksheet.columns.forEach(column => {
     let maxLength = 10;
     column.eachCell?.({ includeEmpty: true }, cell => {
@@ -84,7 +83,6 @@ export async function exportToExcel(
     column.width = maxLength + 2;
   });
 
-  // 6) Descargar archivo
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: 'application/octet-stream' });
   saveAs(blob, fileName);
