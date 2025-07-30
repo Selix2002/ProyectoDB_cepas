@@ -11,6 +11,7 @@ import type {
 } from "ag-grid-community";
 import {
   getUsers,
+  createUser,
   updateUser,
   deleteUser,
 } from "../services/UsersQuery";
@@ -45,7 +46,21 @@ export default function UserTable() {
     setGridApi(params.api);
   };
 
-  
+  const onAddUser = async () => {
+    if (!gridApi) return;
+    const pwd = window.prompt("Ingrese la contraseña para el nuevo usuario:");
+    if (!pwd) return;
+
+    try {
+      loader(true);
+      const nuevo = await createUser("Nuevo Usuario", pwd, false);
+      loader(false);
+      gridApi.applyTransaction({ add: [nuevo] });
+    } catch (err) {
+      console.error("Error creando usuario:", err);
+      window.alert("No se pudo crear el usuario.");
+    }
+  };
 
   const onCellValueChanged = async (event: CellValueChangedEvent) => {
     const user = event.data as RowUser;
@@ -142,7 +157,14 @@ export default function UserTable() {
 
   return (
 
-      
+      <>
+      <div className="flex-none shadow p-6 relative">
+      <button
+        onClick={onAddUser}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded">
+        + Nuevo usuario
+      </button>
+    </div>
     <div className="ag-theme-alpine custom-space relative h-full">
         <AgGridReact
           rowData={rowData}
@@ -155,5 +177,7 @@ export default function UserTable() {
           getRowId={(params: GetRowIdParams<RowUser>) => params.data.id.toString()}
           scrollbarWidth={16} />
       </div>
+
+      </>
   );
 }
