@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import UserTable from '../components/UserTable';
 export default function UserPage() {
   return (
-    <div className="flex flex-col h-full min-h-screen">
+    <div className="flex flex-col h-full min-h-screen bg-gray-900 text-white">
       {/* HEADER */}
       <div className="flex-none bg-white shadow p-6 relative">
         {/* BOTÓN VOLVER */}
