@@ -199,7 +199,6 @@ export default function NewCepaPage() {
       delete payload.datos_extra;
     }
 
-    console.log("Payload a subir a la DB:", payload);
     //SUBIR A LA BASE DE DATOS
     loader(true);
     createCepa(payload)
@@ -294,7 +293,6 @@ export default function NewCepaPage() {
 
 
     // 6) Loguea el objeto final listo para subir
-    console.log("Objeto final a subir a la DB:", payload);
 
     // 7) Llama a la función de creación
     loader(true);
