@@ -19,7 +19,7 @@ export default function UserPage() {
 
       {/* CONTENIDO: tabla / ag-Grid */}
       <div className="flex-1 border-t border-gray-700 p-4 box-border">
-        <div className="w-full h-full border-dashed border-2 border-gray-200 flex items-center justify-center">
+        <div className="border-dashed border-2 border-gray-200 flex items-center justify-center">
         <UserTable />
         </div>
       </div>
