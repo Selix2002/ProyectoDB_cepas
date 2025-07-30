@@ -17,7 +17,10 @@ export default function UserPage() {
         </h1>
       </div>
       {/* CONTENIDO: tabla / ag-Grid */}
-            <UserTable />
+      <div className="flex-1 border-t border-gray-700 p-4 box-border">
+          <UserTable />
+      </div>
+            
     </div>
   );
 }
