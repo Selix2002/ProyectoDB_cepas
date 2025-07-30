@@ -158,6 +158,13 @@ export default function UserTable() {
   return (
 
       <>
+      <div>
+      <button
+        onClick={onAddUser}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded">
+        + Nuevo usuario
+      </button>
+    </div>
     <div className="ag-theme-alpine custom-space relative h-full">
         <AgGridReact
           rowData={rowData}
@@ -170,13 +177,7 @@ export default function UserTable() {
           getRowId={(params: GetRowIdParams<RowUser>) => params.data.id.toString()}
           scrollbarWidth={16} />
       </div>
-      <div className="relative h-full">
-      <button
-        onClick={onAddUser}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-        + Nuevo usuario
-      </button>
-    </div>
+
       </>
   );
 }
