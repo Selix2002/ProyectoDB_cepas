@@ -156,7 +156,7 @@ export default function UserTable() {
   const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
-      <div className="ag-theme-alpine custom-space relative h-full">
+      <div className="ag-theme-alpine custom-space relative h-full flex-1">
          <button
         onClick={onAddUser}
         className="mb-2 px-4 py-2 bg-blue-600 text-white rounded"
