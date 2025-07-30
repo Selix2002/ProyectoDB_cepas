@@ -157,10 +157,8 @@ export default function UserTable() {
 
   return (
       <div className="ag-theme-alpine custom-space relative h-full">
-         <button
-        onClick={onAddUser}
-        className="mb-2 px-4 py-2 bg-blue-600 text-white rounded"
-      >
+         <button onClick={onAddUser}
+        className="bg-blue-600 text-white rounded">
         + Nuevo usuario
       </button>
         <AgGridReact
