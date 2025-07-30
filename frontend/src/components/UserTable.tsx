@@ -156,7 +156,7 @@ export default function UserTable() {
   const defaultColDef = { sortable: true, filter: true,minWidth: 100 };
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="relative h-full">
       <button
         onClick={onAddUser}
         className="mb-2 px-4 py-2 bg-blue-600 text-white rounded"
