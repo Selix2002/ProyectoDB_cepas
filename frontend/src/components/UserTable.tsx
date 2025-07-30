@@ -53,7 +53,7 @@ export default function UserTable() {
 
     try {
       loader(true);
-      const nuevo = await createUser("N/I", pwd, false);
+      const nuevo = await createUser("Nuevo Usuario", pwd, false);
       loader(false);
       gridApi.applyTransaction({ add: [nuevo] });
     } catch (err) {
@@ -109,17 +109,8 @@ export default function UserTable() {
         params.data.id !== currentUser?.id,
         },
     {
-      field: "password",
-      headerName: "Contraseña",
-      editable: false,
-      width: 150,
-      valueFormatter: () => "******",
-      cellStyle: { textAlign: "center", fontFamily: "monospace" },
-    },
-    {
       field: "isAdmin",
       headerName: "Administrador",
-      width: 130,
       editable: (params: { data: { id: number | undefined } }) =>
         params.data.id !== currentUser?.id,
       cellEditor: "agSelectCellEditor",
@@ -129,7 +120,6 @@ export default function UserTable() {
     },
     {
       headerName: "Eliminar Usuario",
-      width: 100,
       cellRenderer: (params: ICellRendererParams<RowUser>) => {
         if (params.data?.id === currentUser?.id) {
           return (
@@ -178,6 +168,7 @@ export default function UserTable() {
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          theme="legacy"
           domLayout="normal"
           onGridReady={onGridReady}
           onCellValueChanged={onCellValueChanged}
