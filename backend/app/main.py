@@ -31,8 +31,7 @@ openapi_config = OpenAPIConfig(
     version="1.0.0",
     root_schema_site="scalar",  # para usar ScalarRenderPlugin
     render_plugins=[ScalarRenderPlugin()],  # para usar ScalarRenderPlugin
-    servers=[Server(url="http://localhost:8000", description="Desarrollo local")],
-    # Base path para servir la documentación; por defecto sería "/schema"
+    servers=[ Server(url="https://proyectodb-cepas-v14l.onrender.com") ],    # Base path para servir la documentación; por defecto sería "/schema"
     path="/schema",
 )
 
