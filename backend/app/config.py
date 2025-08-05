@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     debug: bool = False  # default to False
     database_url: str
-    secret_key: SecretStr
+    secret_key: str = "soyyolameafichaqliayquepasa"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
