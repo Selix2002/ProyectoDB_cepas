@@ -3,12 +3,11 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.config import settings
-
 # Agrega el directorio 'backend' al PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 # Importa los modelos
+from app.config import settings
 from app.models import (
     Cepa,
     Almacenamiento,
