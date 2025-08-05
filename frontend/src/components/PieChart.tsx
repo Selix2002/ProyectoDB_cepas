@@ -1,6 +1,6 @@
 // src/components/charts/PieChart.tsx
 
-import { ResponsivePie, type PieTooltipProps } from "@nivo/pie";
+import { ResponsivePie, type PieTooltipProps, type ComputedDatum } from "@nivo/pie";
 import type { PieDataItem, MyPieProps } from "../interfaces/index_charts";
 
 // El componente de tooltip no cambia, sigue siendo excelente.
@@ -38,11 +38,10 @@ const MyPieChart = ({ data }: MyPieProps) => {
       padAngle={0.6}
       cornerRadius={2}
       enableArcLabels={true} 
-      arcLabel={d => {
+      arcLabel={(d: ComputedDatum<PieDataItem>) => {
         if (total === 0) return '0%(0)';
-        // Calculamos el porcentaje
+        // La lógica interna no cambia, porque ComputedDatum también tiene .value
         const percentage = ((d.value / total) * 100).toFixed(1);
-        // Devolvemos el nuevo formato: "porcentaje%(valor_absoluto)"
         return `${percentage}%(${d.value})`;
       }}
       activeOuterRadiusOffset={15}
