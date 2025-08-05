@@ -8,7 +8,7 @@ export default defineConfig({
     // Esto asegura que en desarrollo, las llamadas a /api se redirijan al backend
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: 'https://proyectodb-cepas-v14l.onrender.com',
         changeOrigin: true,
       },
     },

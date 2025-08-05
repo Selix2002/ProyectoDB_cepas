@@ -248,7 +248,7 @@ export function HomePage() {
       </div>
 
       {/* --- SECCIÓN DE LA TABLA --- */}
-      <div className="flex-1 border-t border-gray-700 p-4 box-border">
+      <div className="border-t border-gray-700 p-4 box-border">
         {/* Aquí pasamos las funciones y el estado como props a CepasTable */}
         <CepasTable
           onGridReady={handleGridReady}
