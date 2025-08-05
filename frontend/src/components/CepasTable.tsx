@@ -1,11 +1,15 @@
 // src/components/CepasTable.tsx
 
 import { AgGridReact } from "ag-grid-react";
-import type { GridReadyEvent, CellValueChangedEvent } from "ag-grid-community";
+import type {
+  GridReadyEvent,
+  CellValueChangedEvent,
+  ICellRendererParams,
+} from "ag-grid-community";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
-import { useState, useEffect, useMemo } from "react";
-import { loader } from '../utils/loader';
+import { useState, useEffect, useCallback } from "react";
+import { loader } from "../utils/loader";
 import {
   fetchCepasFull,
   updateCepasJSONB_forTable,
@@ -16,55 +20,123 @@ import { getCepasColumnDefs } from "./CepasColumns";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+const filterRow = { id: 0 };
+
+// Componente para el renderizador de celdas (sin cambios)
+const RadioButtonCellRenderer = (
+  params: ICellRendererParams & {
+    onColumnSelect: (selection: { field: string; name: string }) => void;
+    selectedColumn: { field: string; name: string } | null;
+  }
+) => {
+  if (params.data && params.data.id === 0) {
+    const field = params.colDef?.field;
+    // Extraemos el headerName, si no existe, usamos el field como fallback.
+    const name = params.colDef?.headerName || field;
+
+    if (!field || !name) return null;
+
+    const handleRadioClick = () => {
+      params.onColumnSelect({ field, name });
+    };
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <input
+          type="radio"
+          name="pie-chart-column-selector"
+          style={{ cursor: "pointer" }}
+          onChange={handleRadioClick}
+          // MODIFICACIÓN: Comparamos el `field` del estado con el `field` de la columna actual.
+          checked={params.selectedColumn?.field === field}
+        />
+      </div>
+    );
+  }
+  return params.value ?? null;
+};
+
 export type GridReadyCallback = (params: GridReadyEvent) => void;
 
 interface CepasTableProps {
   onGridReady?: GridReadyCallback;
+  onDataLoaded: (data: any[]) => void;
+  onColumnSelect: (selection: { field: string; name: string } | null) => void;
+  selectedColumn: { field: string; name: string } | null;
 }
 
-export default function CepasTable({ onGridReady }: CepasTableProps) {
+export default function CepasTable({
+  onGridReady,
+  onDataLoaded,
+  onColumnSelect,
+  selectedColumn,
+}: CepasTableProps) {
+  // --- SECCIÓN DE HOOKS (DEBEN ESTAR AL INICIO Y EN EL NIVEL SUPERIOR) ---
   const [rowData, setRowData] = useState<any[]>([]);
+  const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const { user } = useAuth();
-
-  const paginationPageSizeSelector = useMemo(() => [20, 50, 70, 100], []);
-
-  // Estado para controlar la notificación (texto y tipo)
   const [notification, setNotification] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
-
-  
-
-
-  // 1) Carga inicial de datos
+  const [pinnedTopRowDataState, setPinnedTopRowDataState] = useState<any[]>([]);
+  // EFECTO 1: Para obtener los datos (se ejecuta una sola vez)
   useEffect(() => {
-    loader(true);
+    console.log("[CepasTable] Fetching data... (should only run once)");
     setLoading(true);
-    
+    loader(true);
     fetchCepasFull()
       .then((data) => {
+        onDataLoaded(data);
         setRowData(data);
-        setColumnDefs(getCepasColumnDefs(data));
+        setPinnedTopRowDataState([filterRow]);
       })
       .catch((err) => {
-        console.error("Error al cargar cepas:", err);
         setError(err);
       })
       .finally(() => {
         setLoading(false);
         loader(false);
-
       });
-  }, []);
+  }, [onDataLoaded]);
+  // EFECTO 2: Para actualizar las columnas cuando cambia la selección
+  useEffect(() => {
+    // No hacer nada si aún no han llegado los datos
+    if (rowData.length === 0) {
+      return;
+    }
+    
+    console.log("[CepasTable] Updating column definitions because selection changed.");
+    
+    // Generamos las columnas a partir de los datos existentes.
+    const baseColumnDefs = getCepasColumnDefs(rowData);
+    
+    const enhancedColumnDefs = baseColumnDefs.map((colDef) => ({
+      ...colDef,
+      cellRenderer: RadioButtonCellRenderer,
+      // Pasamos la selección actual para que el radio button correcto esté marcado.
+      cellRendererParams: {
+        onColumnSelect,
+        selectedColumn,
+      },
+    }));
 
-  // 2) Handler que dispara cuando el usuario termina de editar una celda
+    setColumnDefs(enhancedColumnDefs);
+  }, [rowData, selectedColumn, onColumnSelect]); // Depende de los datos y la selección, pero no llama al fetch.
+
+
 
   const handleCellValueChanged = async (params: CellValueChangedEvent) => {
-    // 1) Si no hubo cambio, salimos
+    if (params.data.id === filterRow.id) return;
     if (params.oldValue === params.newValue) return;
 
     const updatedRow = params.data;
@@ -73,7 +145,6 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     const texto =
       typeof rawValue === "string" ? rawValue.trim() : String(rawValue).trim();
 
-    // 2) Validación de texto
     if (!texto || texto.toLowerCase() === "null") {
       setNotification({
         text: 'No se puede dejar la casilla vacía; si quieres vaciarla, escribe "N/I"',
@@ -83,72 +154,41 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
       return;
     }
 
-    // 3) ¿Es JSONB? detectamos prefijo
     const JSONB_PREFIX = "datos_extra.";
     const isJSONBField = field.startsWith(JSONB_PREFIX);
-    // extraemos la clave real (ej: "EL XD")
     const jsonKey = isJSONBField ? field.slice(JSONB_PREFIX.length) : "";
 
     try {
-      console.log("isJSONBField:", isJSONBField);
       if (isJSONBField) {
-        // ————— Rama JSONB —————
-        // 3.1) Recolectar los datos_extra actuales de todas las filas
         const existingDatosExtras = rowData.reduce<
           Record<string, Record<string, any>>
         >((acc, row) => {
           acc[row.nombre] = row.datos_extra ?? {};
           return acc;
         }, {});
-
-        // 3.2) Mergeamos sólo la clave modificada
         const merged = {
           ...existingDatosExtras[updatedRow.nombre],
           [jsonKey]: texto,
         };
-
-        // 3.3) Console.log para inspeccionar payload
-        console.log("🛠️ JSONB PATCH >>", {
-          cepa: updatedRow.nombre,
-          datos_extra: merged,
-        });
-
-        // 3.4) Enviamos al endpoint JSONB
-        loader(true);
         await updateCepasJSONB_forTable(
           { attribute_name: jsonKey, [updatedRow.nombre]: texto },
           existingDatosExtras
         );
-        loader(false);
-
-        // 3.5) Reflejamos localmente
         setRowData((rows) =>
           rows.map((r) =>
             r.nombre === updatedRow.nombre ? { ...r, datos_extra: merged } : r
           )
         );
       } else {
-        // ————— Rama campo normal —————
-        const simplePayload = { [field]: texto };
-
-        console.log("🔧 SIMPLE PATCH >>", {
-          id: updatedRow.id,
-          ...simplePayload,
-        });
-        loader(true);
         await actualizarCepaPorCampo(updatedRow.id, field, texto);
-        loader(false);
-        // Actualizamos localmente ese campo
         setRowData((rows) =>
           rows.map((r) =>
             r.id === updatedRow.id ? { ...r, [field]: texto } : r
           )
         );
       }
-
       setNotification({ text: "Cambios guardados con éxito", type: "success" });
     } catch (err) {
-      console.error("Error al actualizar:", err);
       setNotification({
         text: "Hubo un error al guardar los cambios",
         type: "error",
@@ -158,51 +198,51 @@ export default function CepasTable({ onGridReady }: CepasTableProps) {
     }
   };
 
+  // Función para determinar si una celda es editable.
+  const isCellEditable = useCallback(
+    (params: any) => {
+      // La fila de selectores no es editable.
+      if (params.data && params.data.id === filterRow.id) {
+        return false;
+      }
+      // Solo los administradores pueden editar las demás celdas.
+      return user?.isAdmin ?? false;
+    },
+    [user]
+  );
+
   if (loading) return <div>Cargando cepas...</div>;
   if (error) return <div>Error al cargar datos: {error.message}</div>;
 
-
   return (
     <>
-      {/* Notificación */}
       {notification && (
-        <div
-          className={`absolute top-4 left-1/2 -translate-x-1/2 z-10 mb-2 px-4 py-2 rounded text-center ${
-            notification.type === "success"
-              ? "bg-blue-600 text-white"
-              : "bg-red-600 text-white"
-          }`}
-        >
+        <div className={`absolute top-4 left-1/2 -translate-x-1/2 z-10 ...`}>
           {notification.text}
         </div>
       )}
-
-      {/* Contenedor con scroll horizontal y barra de progreso */}
-      <div
-        className="relative h-full"
-      >
-        <div
-          className="ag-theme-alpine custom-space h-full" 
-        >
+      <div className="relative h-full">
+        <div className="ag-theme-alpine custom-space h-full">
           <AgGridReact
             columnDefs={columnDefs}
             rowData={rowData}
             theme="legacy"
-            scrollbarWidth={16}
+            pinnedTopRowData={pinnedTopRowDataState}
+            enableRowPinning={false}
             onGridReady={onGridReady}
             onCellValueChanged={handleCellValueChanged}
             defaultColDef={{
               minWidth: 100,
               filter: true,
               sortable: true,
-              editable: user?.isAdmin ?? false, // Solo admins pueden editar
+              editable: isCellEditable,
               resizable: true,
               wrapHeaderText: true,
             }}
             rowHeight={50}
             pagination
             paginationPageSize={20}
-            paginationPageSizeSelector={paginationPageSizeSelector}
+            paginationPageSizeSelector={[20, 50, 70, 100]}
             domLayout="normal"
           />
         </div>

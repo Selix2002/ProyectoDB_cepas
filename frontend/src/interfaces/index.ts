@@ -24,6 +24,7 @@ export interface UserBase {
     logout: () => void
   }
   
+  
   export interface CepaUpdatePayload {
     // Campos directos de Cepa
     nombre?: string;
