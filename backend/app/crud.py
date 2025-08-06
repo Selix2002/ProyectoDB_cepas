@@ -215,7 +215,7 @@ class UserController(Controller):
     async def get_my_user(self, request: "Request[User, Token, Any]") -> User:
         return request.user
     
-    @post("/create", dto=UserCreateDTO,guards=[admin_user_guard])  # CREATE
+    @post("/create", dto=UserCreateDTO)  # CREATE
     async def create_user(self, user_repo: UserRepository, data: User) -> User:
         # 1) Calculamos el próximo ID manualmente
         next_id = user_repo.get_next_table_id("users")
