@@ -243,7 +243,7 @@ export default function CepasTable({
             pagination
             paginationPageSize={20}
             paginationPageSizeSelector={[20, 50, 70, 100]}
-            domLayout="autoHeight"
+            domLayout="normal"
           />
         </div>
       </div>
