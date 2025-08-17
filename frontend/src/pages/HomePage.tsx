@@ -156,7 +156,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-screen bg-gray-900 text-white">
+    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Cabecera */}
       <div className="relative h-16 flex items-center mt-8 justify-center border-b border-gray-700 px-4">
         {/* 2. MODIFICAR CONTENEDOR DE BOTONES DE ADMIN */}
@@ -248,7 +248,7 @@ export function HomePage() {
       </div>
 
       {/* --- SECCIÓN DE LA TABLA --- */}
-      <div className="flex-1 border-t border-gray-700 p-4 box-border">
+      <div className="border-t border-gray-700 p-4 box-border">
         {/* Aquí pasamos las funciones y el estado como props a CepasTable */}
         <CepasTable
           onGridReady={handleGridReady}

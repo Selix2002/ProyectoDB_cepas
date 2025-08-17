@@ -114,12 +114,14 @@ export default function CepasTable({
     if (rowData.length === 0) {
       return;
     }
-    
-    console.log("[CepasTable] Updating column definitions because selection changed.");
-    
+
+    console.log(
+      "[CepasTable] Updating column definitions because selection changed."
+    );
+
     // Generamos las columnas a partir de los datos existentes.
     const baseColumnDefs = getCepasColumnDefs(rowData);
-    
+
     const enhancedColumnDefs = baseColumnDefs.map((colDef) => ({
       ...colDef,
       cellRenderer: RadioButtonCellRenderer,
@@ -132,8 +134,6 @@ export default function CepasTable({
 
     setColumnDefs(enhancedColumnDefs);
   }, [rowData, selectedColumn, onColumnSelect]); // Depende de los datos y la selección, pero no llama al fetch.
-
-
 
   const handleCellValueChanged = async (params: CellValueChangedEvent) => {
     if (params.data.id === filterRow.id) return;
@@ -221,31 +221,29 @@ export default function CepasTable({
           {notification.text}
         </div>
       )}
-      <div className="relative h-full">
-        <div className="ag-theme-alpine custom-space h-full">
-          <AgGridReact
-            columnDefs={columnDefs}
-            rowData={rowData}
-            theme="legacy"
-            pinnedTopRowData={pinnedTopRowDataState}
-            enableRowPinning={false}
-            onGridReady={onGridReady}
-            onCellValueChanged={handleCellValueChanged}
-            defaultColDef={{
-              minWidth: 100,
-              filter: true,
-              sortable: true,
-              editable: isCellEditable,
-              resizable: true,
-              wrapHeaderText: true,
-            }}
-            rowHeight={50}
-            pagination
-            paginationPageSize={20}
-            paginationPageSizeSelector={[20, 50, 70, 100]}
-            domLayout="autoHeight"
-          />
-        </div>
+      <div className="ag-theme-alpine custom-space">
+        <AgGridReact
+          columnDefs={columnDefs}
+          rowData={rowData}
+          theme="legacy"
+          pinnedTopRowData={pinnedTopRowDataState}
+          enableRowPinning={false}
+          onGridReady={onGridReady}
+          onCellValueChanged={handleCellValueChanged}
+          defaultColDef={{
+            minWidth: 100,
+            filter: true,
+            sortable: true,
+            editable: isCellEditable,
+            resizable: true,
+            wrapHeaderText: true,
+          }}
+          rowHeight={50}
+          pagination
+          paginationPageSize={20}
+          paginationPageSizeSelector={[20, 50, 70, 100]}
+          domLayout="autoHeight"
+        />
       </div>
     </>
   );
