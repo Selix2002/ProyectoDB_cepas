@@ -6,15 +6,17 @@
   font-family: "Space Grotesk",sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  height: 100%;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
 @layer base {
   html, body, #root {
-    height: 100%;
+    /* Deja que la página crezca: autoHeight necesita esto */
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;       /* Scroll vertical de la página */
     margin: 0;
-    background-color: #1a202c; /* Tailwind's bg-gray-900 */
+    background-color: #1a202c; /* bg-gray-900 */
   }
 }
 
