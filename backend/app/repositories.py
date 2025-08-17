@@ -1,7 +1,7 @@
 from advanced_alchemy.repository import SQLAlchemySyncRepository
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from app.models import Cepa, Almacenamiento, MedioCultivo, Morfologia, ActividadEnzimatica, CrecimientoTemperatura, ResistenciaAntibiotica, CaracterizacionGenetica, Proyecto
+from app.models import Cepa
 from app.models import User
 from pwdlib import PasswordHash
 

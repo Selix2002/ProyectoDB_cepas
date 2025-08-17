@@ -222,7 +222,7 @@ export default function CepasTable({
         </div>
       )}
       <div className="relative h-full">
-        <div className="ag-theme-alpine custom-space h-full">
+        <div className="ag-theme-alpine custom-space">
           <AgGridReact
             columnDefs={columnDefs}
             rowData={rowData}
@@ -243,7 +243,7 @@ export default function CepasTable({
             pagination
             paginationPageSize={20}
             paginationPageSizeSelector={[20, 50, 70, 100]}
-            domLayout="normal"
+            domLayout="autoHeight"
           />
         </div>
       </div>
